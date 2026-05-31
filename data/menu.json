@@ -1,0 +1,445 @@
+{
+  "estabelecimento": "Quiosque",
+  "tema": {
+    "principal": "#ff7a1a",
+    "secundario": "#111111",
+    "texto": "#ffffff"
+  },
+  "categorias": [
+    {
+      "nome": "Hambúrgueres",
+      "itens": [
+        {
+          "nome": "Cheddar Burguer",
+          "preco": 18.0,
+          "descricao": "Pão brioche, carne artesanal, queijo, salada e molho especial"
+        },
+        {
+          "nome": "Nachos Burger",
+          "preco": 23.0,
+          "descricao": "Pão brioche, carne artesanal, queijo cheddar, doritos, bacon, ovo e maionese de doritos"
+        },
+        {
+          "nome": "Prime Burger",
+          "preco": 25.0,
+          "descricao": "Pão brioche, carne artesanal, queijo mussarela, onion rings, cream cheese, farofa de bacon e salada"
+        },
+        {
+          "nome": "Brutus Burger",
+          "preco": 27.0,
+          "descricao": "Pão brioche, 2 carnes artesanais, queijo mussarela e queijo cheddar, bacon em dobro, molho especial, fritas e salada"
+        },
+        {
+          "nome": "Apimentado",
+          "preco": 21.0,
+          "descricao": "Pão australiano, carne artesanal, geleia de pimenta, queijo coalho, bacon, cream cheese"
+        },
+        {
+          "nome": "Crispy Burger",
+          "preco": 20.0,
+          "descricao": "Pão brioche, carne artesanal, cebola crispy, queijo cheddar, bacon e molho barbecue"
+        },
+        {
+          "nome": "Meadhouse",
+          "preco": 24.0,
+          "descricao": "Pão australiano, carne artesanal, queijo coalho no mel, bacon, carne de sol e molho especial"
+        },
+        {
+          "nome": "Duplicado",
+          "preco": 22.0,
+          "descricao": "Pão árabe, 2 carnes artesanais, queijo cheddar, molho smash e cebola branca assada"
+        },
+        {
+          "nome": "Furioso",
+          "preco": 26.0,
+          "descricao": "Pão australiano, carne artesanal, onion rings, farofa de bacon, queijo prato e maionese de Doritos"
+        },
+        {
+          "nome": "Magnífico",
+          "preco": 24.0,
+          "descricao": "Pão brioche, carne artesanal, cebola caramelizada, queijo cheddar, bacon, cream cheese e carne de sol"
+        },
+        {
+          "nome": "Gostosão",
+          "preco": 21.0,
+          "descricao": "Pão árabe, carne artesanal, queijo mussarela, bacon, onion rings e molho smash"
+        },
+        {
+          "nome": "Simplão",
+          "preco": 15.0,
+          "descricao": "Pão brioche, carne industrial, queijo mussarela, calabresa, ovo, molho especial e saladinha"
+        },
+        {
+          "nome": "Cebolinha",
+          "preco": 22.0,
+          "descricao": "Pão australiano, carne artesanal, cebolinha caramelizada, farofa de bacon, queijo cheddar e molho especial"
+        },
+        {
+          "nome": "Goiabinha",
+          "preco": 23.0,
+          "descricao": "Pão brioche, carne artesanal, queijo coalho na chapa, onion rings, ketchup de goiabada e bacon"
+        },
+        {
+          "nome": "Catu Burguer",
+          "preco": 26.0,
+          "descricao": "Pão brioche, carne artesanal, catupiry empanado, queijo coalho, bacon e molho especial"
+        },
+        {
+          "nome": "Costelinha",
+          "preco": 28.0,
+          "descricao": "Pão brioche, carne artesanal, costela desfiada, molho barbecue, queijo mussarela, cream cheese e bacon"
+        }
+      ]
+    },
+    {
+      "nome": "Entradinhas",
+      "itens": [
+        {
+          "nome": "Batata Premium",
+          "preco": 25.0,
+          "descricao": "Batata com carne de sol e cream cheese"
+        },
+        {
+          "nome": "Batata Simples",
+          "preco": 13.0,
+          "descricao": "Batata"
+        },
+        {
+          "nome": "Batata Chips",
+          "preco": 16.0,
+          "descricao": "Batata chips"
+        },
+        {
+          "nome": "Mini Coxinhas Empanada",
+          "preco": 20.0,
+          "descricao": "13 unidades"
+        },
+        {
+          "nome": "Batata Recheada",
+          "preco": 20.0,
+          "descricao": "Batata com cheddar e bacon"
+        }
+      ]
+    },
+    {
+      "nome": "Vitaminas",
+      "itens": [
+        {
+          "nome": "Morango",
+          "preco": 10.0,
+          "descricao": "Vitamina de morango"
+        },
+        {
+          "nome": "Manga",
+          "preco": 9.0,
+          "descricao": "Vitamina de manga"
+        },
+        {
+          "nome": "Acerola",
+          "preco": 9.0,
+          "descricao": "Vitamina de acerola"
+        },
+        {
+          "nome": "Maracujá",
+          "preco": 10.0,
+          "descricao": "Vitamina de maracujá"
+        },
+        {
+          "nome": "Goiaba",
+          "preco": 9.0,
+          "descricao": "Vitamina de goiaba"
+        },
+        {
+          "nome": "Graviola",
+          "preco": 9.0,
+          "descricao": "Vitamina de graviola"
+        }
+      ]
+    },
+    {
+      "nome": "Hot Dog Gourmet",
+      "itens": [
+        {
+          "nome": "Hot Dog Apimentada",
+          "preco": 15.0,
+          "descricao": "Pão HD, carne moída, calabresa fininha, geleia de pimenta, doritos, molho especial"
+        },
+        {
+          "nome": "Hot Burger",
+          "preco": 17.0,
+          "descricao": "Pão HD, carne artesanal, queijo cheddar, calabresa, molho especial e saladinha"
+        },
+        {
+          "nome": "Hot Dog de Carne",
+          "preco": 12.0,
+          "descricao": "Pão HD, carne moída, calabresa fininha, tomate, milho, molho especial e batata"
+        },
+        {
+          "nome": "Hot Dog de Bacon",
+          "preco": 16.0,
+          "descricao": "Pão HD, frango, bacon, queijo coalho, milho, cream cheese e batata palha"
+        },
+        {
+          "nome": "Hot Dog X-Tudão",
+          "preco": 20.0,
+          "descricao": "Pão HD, frango, bacon, calabresa fininha, carne moída, cebola, milho, queijo mussarela, molho bbq, molho especial e batata"
+        },
+        {
+          "nome": "Hot Dog do Chefe",
+          "preco": 18.0,
+          "descricao": "Pão HD, carne de sol, queijo coalho, queijo cheddar, cream cheese, calabresa fininha, molho especial e batata"
+        }
+      ]
+    },
+    {
+      "nome": "Sobremesas",
+      "itens": [
+        {
+          "nome": "Milk de Ovoninho",
+          "preco": 16.0,
+          "descricao": "Milk de ovoninho"
+        },
+        {
+          "nome": "Milk de Morango",
+          "preco": 17.0,
+          "descricao": "Milk de morango"
+        },
+        {
+          "nome": "Bolo no Pote",
+          "preco": 10.0,
+          "descricao": "Bolo no pote"
+        },
+        {
+          "nome": "Din Din Gourmet",
+          "preco": 6.0,
+          "descricao": "Din din gourmet"
+        },
+        {
+          "nome": "Mousse de Maracujá",
+          "preco": 6.0,
+          "descricao": "Mousse de maracujá"
+        }
+      ]
+    },
+    {
+      "nome": "Pastéis Raiz",
+      "itens": [
+        {
+          "nome": "Frango",
+          "preco": 6.0,
+          "descricao": "Pastel de frango"
+        },
+        {
+          "nome": "Queijo",
+          "preco": 6.0,
+          "descricao": "Pastel de queijo"
+        },
+        {
+          "nome": "Carne Moída",
+          "preco": 6.0,
+          "descricao": "Pastel de carne moída"
+        },
+        {
+          "nome": "Calabresa",
+          "preco": 6.0,
+          "descricao": "Pastel de calabresa"
+        },
+        {
+          "nome": "Camarão",
+          "preco": 7.0,
+          "descricao": "Pastel de camarão"
+        },
+        {
+          "nome": "Presunto + Queijo",
+          "preco": 6.0,
+          "descricao": "Pastel de presunto e queijo"
+        },
+        {
+          "nome": "Carne de Sol",
+          "preco": 8.0,
+          "descricao": "Pastel de carne de sol"
+        }
+      ]
+    },
+    {
+      "nome": "Pastéis Doces",
+      "itens": [
+        {
+          "nome": "Alpino",
+          "preco": 10.0,
+          "descricao": "Pastel doce de alpino"
+        },
+        {
+          "nome": "Doce de Leite",
+          "preco": 9.0,
+          "descricao": "Pastel doce de leite"
+        },
+        {
+          "nome": "Bis",
+          "preco": 8.0,
+          "descricao": "Pastel doce de bis"
+        }
+      ]
+    },
+    {
+      "nome": "Pastéis Premium",
+      "itens": [
+        {
+          "nome": "Carne de Sol + Queijo + Cream Cheese",
+          "preco": 15.0,
+          "descricao": "Pastel premium"
+        },
+        {
+          "nome": "Frango + Camarão + Cream Cheese",
+          "preco": 16.0,
+          "descricao": "Pastel premium"
+        },
+        {
+          "nome": "Calabresa + Azeitona + Tomate + Queijo",
+          "preco": 13.0,
+          "descricao": "Pastel premium"
+        },
+        {
+          "nome": "Carne Moída + Azeitona + Frango",
+          "preco": 13.0,
+          "descricao": "Pastel premium"
+        },
+        {
+          "nome": "Queijo + Carne de Sol + Frango + Cheddar Cremoso",
+          "preco": 15.0,
+          "descricao": "Pastel premium"
+        },
+        {
+          "nome": "Cebola Caramelizada + Molho Barbecue + Carne de Sol",
+          "preco": 16.0,
+          "descricao": "Pastel premium"
+        },
+        {
+          "nome": "Frango + Bacon + Cream Cheese",
+          "preco": 15.0,
+          "descricao": "Pastel premium"
+        }
+      ]
+    },
+    {
+      "nome": "Adicionais",
+      "itens": [
+        {
+          "nome": "Cream Cheese",
+          "preco": 4.0,
+          "descricao": "Adicional"
+        },
+        {
+          "nome": "Cebola",
+          "preco": 1.0,
+          "descricao": "Adicional"
+        },
+        {
+          "nome": "Milho",
+          "preco": 1.0,
+          "descricao": "Adicional"
+        },
+        {
+          "nome": "Cheddar Cremoso",
+          "preco": 1.0,
+          "descricao": "Adicional"
+        },
+        {
+          "nome": "Catupiry",
+          "preco": 1.0,
+          "descricao": "Adicional"
+        },
+        {
+          "nome": "Bacon",
+          "preco": 2.0,
+          "descricao": "Adicional"
+        },
+        {
+          "nome": "Queijo",
+          "preco": 2.0,
+          "descricao": "Adicional"
+        },
+        {
+          "nome": "Calabresa",
+          "preco": 2.0,
+          "descricao": "Adicional"
+        },
+        {
+          "nome": "Azeitona",
+          "preco": 1.0,
+          "descricao": "Adicional"
+        }
+      ]
+    },
+    {
+      "nome": "Combos",
+      "itens": [
+        {
+          "nome": "Segundona",
+          "preco": 45.0,
+          "descricao": "+ 2 cheddar burger + refri de 1L + batata"
+        },
+        {
+          "nome": "Terça Sem Lei",
+          "preco": 35.0,
+          "descricao": "+ 4 pastéis raiz + batata + coca 600"
+        },
+        {
+          "nome": "Quartou",
+          "preco": 60.0,
+          "descricao": "Combo da quarta"
+        },
+        {
+          "nome": "Quinta da Sobremesa",
+          "preco": 60.0,
+          "descricao": "+ 2 milk de sua preferência + 2 simplão + batata"
+        },
+        {
+          "nome": "Sexta Maluca",
+          "preco": 58.0,
+          "descricao": "+ 1 nachos burger + 1 goiabinha + batata recheada"
+        },
+        {
+          "nome": "Sabadão",
+          "preco": 54.0,
+          "descricao": "+ 2 prime burger + 2 coca ks + batata"
+        },
+        {
+          "nome": "Combão Combão",
+          "preco": 60.0,
+          "descricao": "+ 4 cheddar burger + batata + coca 1L"
+        }
+      ]
+    },
+    {
+      "nome": "Drinks",
+      "itens": [
+        {
+          "nome": "Aperol Spritz",
+          "preco": 12.0,
+          "descricao": "Drink"
+        },
+        {
+          "nome": "Caipiroska",
+          "preco": 7.0,
+          "descricao": "Drink"
+        },
+        {
+          "nome": "Caipirinha",
+          "preco": 6.0,
+          "descricao": "Drink"
+        },
+        {
+          "nome": "Campari Dose",
+          "preco": 9.0,
+          "descricao": "Drink"
+        },
+        {
+          "nome": "Laramora",
+          "preco": 10.0,
+          "descricao": "Drink"
+        }
+      ]
+    }
+  ]
+}

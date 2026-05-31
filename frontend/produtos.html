@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Quiosque | Produtos</title>
+<style>
+:root{--bg:#0f0f10;--card:#171719;--muted:#b9b9bd;--txt:#fff;--accent:#ff7a1a;--line:rgba(255,122,26,.18)}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#111;color:var(--txt);padding:22px}
+h1{margin:0 0 16px}
+.category{margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:18px;background:#161616}
+.category h2{margin:0 0 10px;color:var(--accent)}
+.item{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #2a2a2a}
+.item:last-child{border-bottom:none}
+small{color:var(--muted)}
+</style></head><body>
+<h1>Cardápio base do Quiosque</h1>
+<div id="app"></div>
+<script>
+fetch('../data/menu.json').then(r=>r.json()).then(data=>{
+  const app=document.getElementById('app');
+  app.innerHTML=data.categorias.map(cat=>`
+    <section class="category">
+      <h2>${cat.nome}</h2>
+      ${cat.itens.map(i=>`
+        <div class="item"><div><b>${i.nome}</b><br><small>${i.descricao||''}</small></div><div>R$ ${Number(i.preco).toFixed(2).replace('.',',')}</div></div>
+      `).join('')}
+    </section>
+  `).join('');
+});
+</script>
+</body></html>

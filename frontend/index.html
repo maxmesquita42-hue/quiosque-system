@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiosque | Sistema</title>
+  <style>
+    :root{
+      --bg:#0f0f10; --card:#171719; --muted:#b9b9bd; --txt:#ffffff; --accent:#ff7a1a;
+      --line:rgba(255,122,26,.18);
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:
+      radial-gradient(circle at top, rgba(255,122,26,.14), transparent 30%),
+      linear-gradient(180deg,#090909,#151515);color:var(--txt);min-height:100vh;display:grid;place-items:center;padding:20px}
+    .wrap{width:min(1100px,100%);display:grid;grid-template-columns:1.05fr .95fr;gap:24px;align-items:center}
+    .hero,.panel{background:rgba(23,23,25,.92);border:1px solid var(--line);border-radius:28px;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+    .hero{padding:28px}
+    .brand{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    .brand img{width:72px;height:72px;border-radius:18px;object-fit:cover;background:#000}
+    h1{font-size:clamp(32px,5vw,60px);line-height:1;margin:8px 0}
+    p{color:var(--muted);line-height:1.6}
+    .pill{display:inline-block;padding:10px 14px;border:1px solid var(--line);border-radius:999px;color:var(--accent);margin:8px 8px 0 0}
+    .panel{padding:24px}
+    label{display:block;font-size:14px;margin:14px 0 8px;color:#ddd}
+    input,button{width:100%;padding:14px 16px;border-radius:14px;border:1px solid #333;background:#0f0f10;color:#fff}
+    input::placeholder{color:#777}
+    button{margin-top:16px;background:linear-gradient(180deg,#ff8d34,#ff6d0f);border:none;font-weight:bold;cursor:pointer}
+    .small{margin-top:12px;font-size:13px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}
+    .box{padding:14px;border-radius:16px;background:#111;border:1px solid #2a2a2a}
+    .box b{color:var(--accent);display:block;margin-bottom:6px}
+    @media (max-width:900px){.wrap{grid-template-columns:1fr}.brand img{width:62px;height:62px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="brand">
+        <img src="../assets/logo.png" alt="Quiosque">
+        <div>
+          <div style="color:var(--accent);font-weight:bold;letter-spacing:1px">SISTEMA DE PEDIDOS</div>
+          <div style="color:var(--muted)">Hambúrgueres • Pastéis • Hot Dogs • Drinks</div>
+        </div>
+      </div>
+      <h1>Quiosque</h1>
+      <p>Controle de mesas, pedidos, cozinha, caixa, estoque e impressão térmica em um sistema preparado para o seu cardápio.</p>
+      <div>
+        <span class="pill">Mesas</span>
+        <span class="pill">Comandas</span>
+        <span class="pill">Impressora térmica</span>
+        <span class="pill">PWA</span>
+      </div>
+      <div class="grid">
+        <div class="box"><b>Identidade</b> Preto + Laranja</div>
+        <div class="box"><b>Cardápio</b> Pré-cadastrado</div>
+        <div class="box"><b>Logo</b> Aplicada no sistema</div>
+        <div class="box"><b>Hospedagem</b> Pronta para adaptação</div>
+      </div>
+    </section>
+    <section class="panel">
+      <h2 style="margin-top:0">Acesso</h2>
+      <label>E-mail</label>
+      <input type="email" placeholder="admin@quiosque.com">
+      <label>Senha</label>
+      <input type="password" placeholder="Digite a senha">
+      
+      <a href="dashboard.html" style="text-decoration: none;"><button type="button">Entrar</button></a>
+      
+      <div class="small">Versão inicial personalizada para o Quiosque.</div>
+    </section>
+  </main>
+</body>
+</html>

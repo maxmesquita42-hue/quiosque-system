@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiosque | Dashboard</title>
+  <style>
+    :root{--bg:#0f0f10;--card:#171719;--muted:#b8b8bd;--txt:#fff;--accent:#ff7a1a;--line:rgba(255,122,26,.18)}
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#111;color:var(--txt)}
+    .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    aside{background:#0b0b0c;padding:22px;border-right:1px solid #232323}
+    .logo{display:flex;gap:12px;align-items:center;margin-bottom:22px}
+    .logo img{width:54px;height:54px;border-radius:14px;object-fit:cover;background:#000}
+    nav a{display:block;color:#fff;text-decoration:none;padding:14px 12px;border-radius:12px;margin:6px 0;background:#151515;border:1px solid #252525}
+    nav a:hover{background:rgba(255,122,26,.14);border-color:var(--line)}
+    main{padding:24px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}
+    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+    .card{background:linear-gradient(180deg,#171719,#121214);border:1px solid var(--line);border-radius:20px;padding:18px}
+    .card small{color:var(--muted)}
+    .card h3{margin:10px 0 0;font-size:30px;color:var(--accent)}
+    .section{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px}
+    .section h2{margin:0 0 12px}
+    .list{display:grid;gap:10px}
+    .row{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:#111;border:1px solid #2a2a2a}
+    @media (max-width:1000px){.layout{grid-template-columns:1fr} aside{display:none}.cards{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:560px){.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="logo">
+        <img src="../assets/logo.png" alt="Quiosque">
+        <div><b>Quiosque</b><div style="color:var(--muted);font-size:12px">Painel administrativo</div></div>
+      </div>
+      <nav>
+        <a href="#">Dashboard</a>
+        <a href="#">Mesas</a>
+        <a href="#">Pedidos</a>
+        <a href="#">Cozinha</a>
+        <a href="#">Caixa</a>
+        <a href="#">Estoque</a>
+        <a href="#">Produtos</a>
+        <a href="#">Relatórios</a>
+      </nav>
+    </aside>
+    <main>
+      <div class="top">
+        <div>
+          <div style="color:var(--accent);font-weight:bold">Bem-vindo ao Quiosque</div>
+          <h1 style="margin:8px 0 0">Dashboard</h1>
+        </div>
+        <img src="../assets/logo.png" alt="Logo" style="width:72px;height:72px;border-radius:18px;object-fit:cover;background:#000">
+      </div>
+      <div class="cards">
+        <div class="card"><small>Vendas hoje</small><h3>R$ 0,00</h3></div>
+        <div class="card"><small>Pedidos ativos</small><h3>0</h3></div>
+        <div class="card"><small>Mesas ocupadas</small><h3>0</h3></div>
+        <div class="card"><small>Produtos cadastrados</small><h3>0</h3></div>
+      </div>
+      <div class="section">
+        <h2>Cardápio base</h2>
+        <div class="list">
+          <div class="row"><span>Hambúrgueres</span><span>16 itens</span></div>
+          <div class="row"><span>Entradinhas</span><span>5 itens</span></div>
+          <div class="row"><span>Pastéis</span><span>17 itens</span></div>
+          <div class="row"><span>Hot Dogs</span><span>6 itens</span></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Quiosque | Pedidos</title>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#111;color:#fff;padding:22px}
+.card{max-width:760px;background:#171719;border:1px solid rgba(255,122,26,.18);border-radius:20px;padding:18px}
+label{display:block;margin:12px 0 6px;color:#ddd} select,input,button,textarea{width:100%;padding:13px 14px;border-radius:12px;border:1px solid #333;background:#0f0f10;color:#fff}
+button{margin-top:14px;background:linear-gradient(180deg,#ff8d34,#ff6d0f);border:none;font-weight:bold}
+</style></head><body>
+<div class="card">
+<h1>Novo Pedido</h1>
+<label>Mesa</label><select><option>Mesa 1</option><option>Mesa 2</option><option>Mesa 3</option></select>
+<label>Produto</label><select><option>Cheddar Burguer</option><option>Batata Premium</option><option>Hot Dog do Chefe</option></select>
+<label>Quantidade</label><input type="number" value="1" min="1">
+<label>Observações</label><textarea rows="3" placeholder="Sem cebola, ponto da carne, etc."></textarea>
+<button>Adicionar Pedido</button>
+</div>
+</body></html>
