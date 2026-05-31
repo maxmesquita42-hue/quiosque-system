@@ -59,19 +59,8 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px;ma
 
 <header><h1>Controle de Mesas</h1><div style="color:var(--accent);font-weight:bold">Quiosque</div></header>
 
-<div class="grid">
-  <!-- Adicionado a função de clique em cada mesa passando o número e se está ocupada -->
-  <div class="mesa livre" onclick="abrirMesa(1, false)">Mesa 1</div>
-  <div class="mesa livre" onclick="abrirMesa(2, false)">Mesa 2</div>
-  <div class="mesa ocupada" onclick="abrirMesa(3, true)">Mesa 3</div>
-  <div class="mesa livre" onclick="abrirMesa(4, false)">Mesa 4</div>
-  <div class="mesa ocupada" onclick="abrirMesa(5, true)">Mesa 5</div>
-  <div class="mesa livre" onclick="abrirMesa(6, false)">Mesa 6</div>
-  <div class="mesa livre" onclick="abrirMesa(7, false)">Mesa 7</div>
-  <div class="mesa livre" onclick="abrirMesa(8, false)">Mesa 8</div>
-</div>
+<div class="grid" id="gridMesas"></div>
 
-<!-- --- POP-UP (MODAL) DE DETALHES DA MESA --- -->
 <div class="modal-overlay" id="mesaModal">
   <div class="modal-content">
     <div class="modal-header">
@@ -79,67 +68,88 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px;ma
       <button class="close-btn" onclick="fecharModal()">&times;</button>
     </div>
     <div id="modalBody">
-      <!-- O conteúdo do pedido vai mudar aqui dependendo da mesa -->
-    </div>
+      </div>
   </div>
 </div>
 
-<!-- --- ÁREA OCULTA QUE SÓ APARECE NA IMPRESSORA TÉRMICA --- -->
 <div id="print-section" style="display: none;"></div>
 
 <script>
-// Dados simulados para as mesas ocupadas (Mesa 3 e Mesa 5)
-const pedidosMesas = {
-  3: {
-    itens: [
-      { qtd: 2, nome: 'Hambúrguer Duplo', preco: 22.00 },
-      { qtd: 1, nome: 'Batata Frita G', preco: 15.00 },
-      { qtd: 3, nome: 'Refrigerante Lata', preco: 6.00 }
-    ],
-    total: 77.00
-  },
-  5: {
-    itens: [
-      { qtd: 1, nome: 'Pastel de Frango', preco: 12.00 },
-      { qtd: 1, nome: 'Suco Natural', preco: 8.00 }
-    ],
-    total: 20.00
-  }
-};
-
+let statusSalao = {};
 let mesaAtual = null;
+
+// Função para puxar e sincronizar os dados guardados em tempo real
+function carregarDadosSalao() {
+  const dadosSalvos = localStorage.getItem('statusSalao');
+  if (dadosSalvos) {
+    statusSalao = JSON.parse(dadosSalvos);
+  } else {
+    // Se não houver nada salvo, cria a estrutura inicial padrão para as 8 mesas
+    statusSalao = {};
+    for (let i = 1; i <= 8; i++) {
+      statusSalao[`Mesa ${i}`] = { status: "Livre", total: 0, itens: [] };
+    }
+    localStorage.setItem('statusSalao', JSON.stringify(statusSalao));
+  }
+  renderizarGridMesas();
+}
+
+// Renderiza visualmente os botões das mesas baseando-se no status real
+function renderizarGridMesas() {
+  const grid = document.getElementById('gridMesas');
+  grid.innerHTML = "";
+
+  for (let i = 1; i <= 8; i++) {
+    const nomeMesa = `Mesa ${i}`;
+    const dadosMesa = statusSalao[nomeMesa];
+    const estaOcupada = dadosMesa.status === "Ocupada";
+    
+    const divMesa = document.createElement('div');
+    divMesa.className = `mesa ${estaOcupada ? 'ocupada' : 'livre'}`;
+    divMesa.innerText = nomeMesa;
+    divMesa.setAttribute('onclick', `abrirMesa(${i}, ${estaOcupada})`);
+    
+    grid.appendChild(divMesa);
+  }
+}
 
 function abrirMesa(numero, ocupada) {
   mesaAtual = numero;
+  const nomeMesaKey = `Mesa ${numero}`;
   const modal = document.getElementById('mesaModal');
   const title = document.getElementById('modalTitle');
   const body = document.getElementById('modalBody');
   
   title.innerText = `Detalhes - Mesa ${numero}`;
   
-  if (!ocupada || !pedidosMesas[numero]) {
+  if (!ocupada || !statusSalao[nomeMesaKey] || statusSalao[nomeMesaKey].itens.length === 0) {
     body.innerHTML = `
       <p style="color: var(--muted); text-align: center; margin: 30px 0;">Esta mesa está livre e não possui pedidos ativos.</p>
       <button class="btn" style="background: #252525; color: #fff; width: 100%;" onclick="fecharModal()">Fechar</button>
     `;
   } else {
-    const pedido = pedidosMesas[numero];
+    const dadosMesa = statusSalao[nomeMesaKey];
     let itensHTML = '';
     
-    pedido.itens.forEach(item => {
-      itensHTML += `
-        <div class="order-item">
-          <span>${item.qtd}x ${item.nome}</span>
-          <span>R$ ${(item.qtd * item.preco).toFixed(2).replace('.', ',')}</span>
-        </div>
-      `;
+    // Como os itens vêm concatenados por quebras de linha (\n) do pedidos.html, fazemos o mapeamento limpo
+    dadosMesa.itens.forEach(blocoItens => {
+      const linhas = blocoItens.split('\n');
+      linhas.forEach(linha => {
+        if (linha.trim() !== "") {
+          itensHTML += `
+            <div class="order-item">
+              <span>${linha}</span>
+            </div>
+          `;
+        }
+      });
     });
 
     body.innerHTML = `
       <div class="order-list">${itensHTML}</div>
       <div class="total-box">
         <span>Total:</span>
-        <span>R$ ${pedido.total.toFixed(2).replace('.', ',')}</span>
+        <span>R$ ${dadosMesa.total.toFixed(2).replace('.', ',')}</span>
       </div>
       <div class="btn-group">
         <button class="btn btn-print" onclick="imprimirComanda(${numero})">Imprimir</button>
@@ -156,20 +166,30 @@ function fecharModal() {
 }
 
 function fecharConta(numero) {
+  const nomeMesaKey = `Mesa ${numero}`;
   if(confirm(`Deseja realmente fechar a conta da Mesa ${numero}?`)) {
+    
+    // Atualiza a estrutura de memória mudando para livre e limpando o consumo
+    statusSalao[nomeMesaKey].status = "Livre";
+    statusSalao[nomeMesaKey].total = 0;
+    statusSalao[nomeMesaKey].itens = [];
+    
+    // Persiste no localStorage do navegador para atualizar os demais arquivos
+    localStorage.setItem('statusSalao', JSON.stringify(statusSalao));
+    
     alert(`Conta da Mesa ${numero} fechada com sucesso!`);
     fecharModal();
-    // Aqui no futuro adicionaremos a função para mudar a cor da mesa para verde no backend
+    renderizarGridMesas();
   }
 }
 
 function imprimirComanda(numero) {
-  const pedido = pedidosMesas[numero];
-  if (!pedido) return;
+  const nomeMesaKey = `Mesa ${numero}`;
+  const dadosMesa = statusSalao[nomeMesaKey];
+  if (!dadosMesa) return;
 
   const printSection = document.getElementById('print-section');
   
-  // Estruturando o layout do cupom de 58mm/80mm
   let cupomHTML = `
     <div class="print-header">
       QUIOSQUE SYSTEM<br>
@@ -178,19 +198,23 @@ function imprimirComanda(numero) {
     </div>
   `;
 
-  pedido.itens.forEach(item => {
-    cupomHTML += `
-      <div class="print-item">
-        <span>${item.qtd}x ${item.nome}</span>
-        <span>R$ ${(item.qtd * item.preco).toFixed(2).replace('.', ',')}</span>
-      </div>
-    `;
+  dadosMesa.itens.forEach(blocoItens => {
+    const linhas = blocoItens.split('\n');
+    linhas.forEach(linha => {
+      if (linha.trim() !== "") {
+        cupomHTML += `
+          <div class="print-item">
+            <span>${linha}</span>
+          </div>
+        `;
+      }
+    });
   });
 
   cupomHTML += `
     <div class="print-total">
       <span>TOTAL:</span>
-      <span>R$ ${pedido.total.toFixed(2).replace('.', ',')}</span>
+      <span>R$ ${dadosMesa.total.toFixed(2).replace('.', ',')}</span>
     </div>
     <div class="print-footer">
       Obrigado pela preferência!<br>
@@ -199,9 +223,13 @@ function imprimirComanda(numero) {
   `;
 
   printSection.innerHTML = cupomHTML;
-  
-  // Dispara a janela de impressão nativa do Windows
   window.print();
 }
+
+// Atualiza o painel toda vez que a janela ganhar foco (quando você alternar entre as abas)
+window.addEventListener('focus', carregarDadosSalao);
+
+// Inicialização imediata
+carregarDadosSalao();
 </script>
 </body></html>

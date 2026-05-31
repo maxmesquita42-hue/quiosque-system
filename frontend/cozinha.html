@@ -15,8 +15,8 @@ button{padding:11px 14px;border-radius:12px;border:1px solid #333;color:#fff;fon
 
 /* --- ESTILO DE IMPRESSÃO DA COMANDA TÉRMICA (WINDOWS PRINT) --- */
 @media print {
-  body * { display: none !important; } /* Oculta todo o painel escuro */
-  #cupom-termico, #cupom-termico * { display: block !important; } /* Mostra apenas o cupom */
+  body * { display: none !important; } 
+  #cupom-termico, #cupom-termico * { display: block !important; } 
   #cupom-termico {
     position: absolute; left: 0; top: 0; width: 100%;
     color: #000 !important; background: #fff !important;
@@ -31,36 +31,33 @@ button{padding:11px 14px;border-radius:12px;border:1px solid #333;color:#fff;fon
 </style></head><body>
 
 <h1>Comandas da Cozinha</h1>
-<div class="grid-pedidos" id="listaCozinha">
-  <!-- Os pedidos adicionados vão brotar aqui automaticamente -->
-</div>
+<div class="grid-pedidos" id="listaCozinha"></div>
 
-<!-- Área oculta que será preenchida e enviada para a impressora térmica -->
 <div id="cupom-termico" style="display: none;"></div>
 
 <script>
-// Função que lê os dados enviados pelo botão "Adicionar Pedido" e monta as telas
+// A cozinha agora lê o que foi enviado pelo pedido
 function atualizarPainelCozinha() {
   const listaCozinha = document.getElementById('listaCozinha');
-  const pedidos = JSON.parse(localStorage.getItem('pedidosCozinha')) || [];
+  // Obtemos a fila completa do localStorage
+  let filaCozinha = JSON.parse(localStorage.getItem('filaCozinha')) || [];
   
-  if (pedidos.length === 0) {
+  if (filaCozinha.length === 0) {
     listaCozinha.innerHTML = `<p style="color: #bbb; grid-column: 1/-1; text-align: center; margin-top: 20px;">Nenhum pedido pendente na cozinha.</p>`;
     return;
   }
 
   let htmlPedidos = '';
-  pedidos.forEach((pedido, index) => {
+  filaCozinha.forEach((p, index) => {
     htmlPedidos += `
       <div class="card">
         <div>
           <div class="card-header">
-            <span class="mesa-titulo">${pedido.mesa}</span>
-            <span class="hora-pedido">${pedido.hora}</span>
+            <span class="mesa-titulo">${p.mesa}</span>
+            <span class="hora-pedido">${p.hora}</span>
           </div>
-          <div class="item-detalhe">
-            <span class="item-qtd">${pedido.quantidade}x</span> ${pedido.produto}
-            <div style="color: #ff8d34; font-size: 14px; margin-top: 8px; font-weight: normal;">${pedido.observacoes}</div>
+          <div class="item-detalhe" style="font-family: monospace;">
+            ${p.produtos}
           </div>
         </div>
         <div>
@@ -74,48 +71,37 @@ function atualizarPainelCozinha() {
   listaCozinha.innerHTML = htmlPedidos;
 }
 
-// Remove o pedido da lista da cozinha ao clicar em Concluir
 function concluirPedidoCozinha(index) {
-  let pedidos = JSON.parse(localStorage.getItem('pedidosCozinha')) || [];
-  pedidos.splice(index, 1);
-  localStorage.setItem('pedidosCozinha', JSON.stringify(pedidos));
+  let filaCozinha = JSON.parse(localStorage.getItem('filaCozinha')) || [];
+  filaCozinha.splice(index, 1);
+  localStorage.setItem('filaCozinha', JSON.stringify(filaCozinha));
   atualizarPainelCozinha();
 }
 
-// Formata o pedido no padrão de cupom para qualquer impressora térmica via Windows Print
 function imprimirCupomCozinha(index) {
-  const pedidos = JSON.parse(localStorage.getItem('pedidosCozinha')) || [];
-  const pedido = pedidos[index];
+  let filaCozinha = JSON.parse(localStorage.getItem('filaCozinha')) || [];
+  const pedido = filaCozinha[index];
   if (!pedido) return;
 
   const areaImpressao = document.getElementById('cupom-termico');
   
   areaImpressao.innerHTML = `
     <div class="print-topo">
-      COZINHA - PEDIDO DE PRODUÇÃO<br>
-      --------------------------------
+      COZINHA - PRODUÇÃO<br>
+      ${pedido.mesa} - ${pedido.hora}
     </div>
     <div class="print-corpo">
-      <strong>MESA:</strong> ${pedido.mesa}<br>
-      <strong>HORA:</strong> ${pedido.hora}<br>
-      --------------------------------<br>
-      <span style="font-size: 18px;"><strong>${pedido.quantidade}x ${pedido.produto}</strong></span>
-      <div class="print-obs"><strong>OBS:</strong> ${pedido.observacoes}</div>
+      ${pedido.produtos.replace(/\n/g, '<br>')}
     </div>
     <div class="print-rodape">
       --------------------------------<br>
-      Controle Interno de Produção
+      Controle Interno
     </div>
   `;
-
-  // Dispara a janela de impressão do Windows
   window.print();
 }
 
-// Fica checando a cada 3 segundos se entrou algum pedido novo vindo da tela de pedidos
-setInterval(atualizarPainelCozinha, 3000);
-
-// Executa assim que abre a página
+setInterval(atualizarPainelCozinha, 2000);
 atualizarPainelCozinha();
 </script>
 </body></html>

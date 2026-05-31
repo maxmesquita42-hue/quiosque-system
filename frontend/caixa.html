@@ -41,14 +41,12 @@ button{margin-top:14px;background:linear-gradient(180deg,#ff8d34,#ff6d0f);border
   <div>
     <div class="card">
       <h2>Contas Pendentes</h2>
-      <div id="listaContasPendentes">
-        </div>
+      <div id="listaContasPendentes"></div>
     </div>
     
     <div class="card">
       <h2>Últimos Recebimentos (Histórico)</h2>
-      <div id="historicoCaixa">
-        </div>
+      <div id="historicoCaixa"></div>
     </div>
   </div>
 
@@ -58,15 +56,11 @@ button{margin-top:14px;background:linear-gradient(180deg,#ff8d34,#ff6d0f);border
       
       <label>Mesa / Origem</label>
       <select id="caixaMesa" onchange="selecionarMesaCaixa()">
-        <option value="">Selecione para receber</option>
-        <option value="Mesa 3">Mesa 3 (Consumo Ativo)</option>
-        <option value="Mesa 5">Mesa 5 (Consumo Ativo)</option>
-        <option value="Venda Direta">Venda Direta (Balcão)</option>
-      </select>
+        </select>
 
       <label>Forma de Pagamento</label>
       <select id="caixaFormaPagamento">
-        <option value="PIX">Dinheiro</option>
+        <option value="Dinheiro">Dinheiro</option>
         <option value="PIX">PIX</option>
         <option value="Cartão de Crédito">Cartão de Crédito</option>
         <option value="Cartão de Débito">Cartão de Débito</option>
@@ -91,67 +85,89 @@ button{margin-top:14px;background:linear-gradient(180deg,#ff8d34,#ff6d0f);border
 <div id="cupom-caixa" style="display: none;"></div>
 
 <script>
-// Valores simulados integrados com os mesmos dados da tela de Mesas
-const contasAtivas = {
-  "Mesa 3": 77.00,
-  "Mesa 5": 20.00
-};
-
-// Histórico inicial do caixa zerado
+let statusSalao = {};
 let historicoVendas = JSON.parse(localStorage.getItem('historicoCaixa')) || [];
 
 function carregarDadosCaixa() {
-  const listaPendentes = document.getElementById('listaContasPendentes');
-  const listaHistorico = document.getElementById('historicoCaixa');
-  
-  // 1. Renderiza Contas Pendentes
-  let htmlPendentes = '';
-  let temPendente = false;
-  for (const mesa in contasAtivas) {
-    if (contasAtivas[mesa] > 0) {
-      temPendente = true;
-      htmlPendentes += `
-        <div class="row-caixa" style="cursor:pointer;" onclick="carregarNoPainel('${mesa}', ${contasAtivas[mesa]})">
-          <span class="mesa-tag">${mesa}</span>
-          <span style="color:#bbb; font-size:14px;">Aguardando pagamento</span>
-          <span class="valor-tag">R$ ${contasAtivas[mesa].toFixed(2).replace('.', ',')}</span>
-        </div>
-      `;
+  // Puxa as comandas atualizadas das mesas
+  const dadosSalvos = localStorage.getItem('statusSalao');
+  if (dadosSalvos) {
+    statusSalao = JSON.parse(dadosSalvos);
+  } else {
+    statusSalao = {};
+    for (let i = 1; i <= 8; i++) {
+      statusSalao[`Mesa ${i}`] = { status: "Livre", total: 0, itens: [] };
     }
   }
+
+  const listaPendentes = document.getElementById('listaContasPendentes');
+  const listaHistorico = document.getElementById('historicoCaixa');
+  const selectMesa = document.getElementById('caixaMesa');
+  
+  // 1. Renderiza Contas Pendentes e monta o select dinamicamente
+  let htmlPendentes = '';
+  let temPendente = false;
+  
+  let selectHTML = '<option value="">Selecione para receber</option>';
+
+  for (let i = 1; i <= 8; i++) {
+    const mesa = `Mesa ${i}`;
+    const dados = statusSalao[mesa];
+    
+    if (dados && dados.status === "Ocupada" && dados.total > 0) {
+      temPendente = true;
+      htmlPendentes += `
+        <div class="row-caixa" style="cursor:pointer;" onclick="carregarNoPainel('${mesa}', ${dados.total})">
+          <span class="mesa-tag">${mesa}</span>
+          <span style="color:#bbb; font-size:14px;">Aguardando pagamento</span>
+          <span class="valor-tag">R$ ${dados.total.toFixed(2).replace('.', ',')}</span>
+        </div>
+      `;
+      selectHTML += `<option value="${mesa}">${mesa} (Consumo Ativo)</option>`;
+    }
+  }
+  
+  selectHTML += `<option value="Venda Direta">Venda Direta (Balcão)</option>`;
+  selectMesa.innerHTML = selectHTML;
+
   if (!temPendente) {
-    htmlPendentes = `<p style="color:#bbb; text-align:center;">Nenhuma mesa pendente de pagamento no momento.</p>`;
+    htmlPendentes = `<p style="color:#bbb; text-align:center; padding: 10px; font-size:14px;">Nenhuma mesa pendente de pagamento no momento.</p>`;
   }
   listaPendentes.innerHTML = htmlPendentes;
 
-  // 2. Renderiza Histórico de Recebimentos
+  // 2. Renderiza Histórico de Recebimentos e soma faturamento
   let htmlHistorico = '';
   let somas = { Dinheiro: 0, PIX: 0, Cartao: 0, Total: 0 };
 
   if (historicoVendas.length === 0) {
-    htmlHistorico = `<p style="color:#bbb; text-align:center; font-size:14px;">Nenhum recebimento registrado hoje.</p>`;
+    htmlHistorico = `<p style="color:#bbb; text-align:center; font-size:14px; padding: 10px;">Nenhum recebimento registrado hoje.</p>`;
   } else {
     historicoVendas.forEach(venda => {
       htmlHistorico += `
         <div class="row-caixa" style="border-color: rgba(46,204,113,0.15)">
           <span class="mesa-tag" style="color:#2ecc71">${venda.origem}</span>
-          <span style="color:#bbb; font-size:14px;">Meto do: ${venda.metodo}</span>
+          <span style="color:#bbb; font-size:14px;">Método: ${venda.metodo}</span>
           <span class="valor-tag">R$ ${venda.valor.toFixed(2).replace('.', ',')}</span>
         </div>
       `;
-      // Faz o cálculo das somas do dia
-      if (venda.metodo === 'Dinheiro') somas.Dinheiro += venda.valor;
-      else if (venda.metodo === 'PIX') somas.Pix += venda.valor;
-      else somas.Cartao += venda.valor;
+      
+      // Classificação correta dos recebimentos para o Relatório do Dia
+      if (venda.metodo === 'Dinheiro') {
+        somas.Dinheiro += venda.valor;
+      } else if (venda.metodo === 'PIX') {
+        somas.PIX += venda.valor;
+      } else {
+        somas.Cartao += venda.valor; // Junta Crédito e Débito em "Cartões"
+      }
       somas.Total += venda.valor;
     });
   }
   listaHistorico.innerHTML = htmlHistorico;
 
-  // 3. Atualiza o Card de Resumo do Dia
-  document.getElementById('resumoDinheiro').innerText = `R$ ${(somas.Dinheiro || 0).toFixed(2).replace('.', ',')}`;
-  document.getElementById('resumoPix').innerText = `R$ ${(somas.Pix || 0).toFixed(2).replace('.', ',')}`;
-  document.getElementById('resumoCartao').innerText = `R$ ${(somas.Cartao || 0).toFixed(2).replace('.', ',')}`;
+  // 3. Atualiza o Card de Resumo do Dia (Relatório de Faturamento)
+  document.getElementById('resumoDinheiro').innerText = `R$ ${somas.Dinheiro.toFixed(2).replace('.', ',')}`;
+  document.getElementById('resumoPix').innerText = `R$ ${somas.PIX.toFixed(2).replace('.', ',')}`;
+  document.getElementById('resumoCartao').innerText = `R$ ${somas.Cartao.toFixed(2).replace('.', ',')}`;
   document.getElementById('resumoTotalGeral').innerText = `R$ ${somas.Total.toFixed(2).replace('.', ',')}`;
 }
 
@@ -162,8 +178,8 @@ function carregarNoPainel(mesa, valor) {
 
 function selecionarMesaCaixa() {
   const mesa = document.getElementById('caixaMesa').value;
-  if (contasAtivas[mesa]) {
-    document.getElementById('caixaValorTotal').value = contasAtivas[mesa].toFixed(2);
+  if (mesa && statusSalao[mesa] && statusSalao[mesa].status === "Ocupada") {
+    document.getElementById('caixaValorTotal').value = statusSalao[mesa].total.toFixed(2);
   } else {
     document.getElementById('caixaValorTotal').value = '';
   }
@@ -182,7 +198,7 @@ function finalizarVendaCaixa() {
 
   const valor = parseFloat(valorInput);
 
-  // Nova venda para o histórico
+  // Gera o objeto da nova venda para o relatório
   const novaVenda = {
     id: Date.now(),
     origem: origem,
@@ -191,21 +207,63 @@ function finalizarVendaCaixa() {
     data: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR')
   };
 
-  historicoVendas.unshift(novaVenda); // Adiciona no início da lista
+  historicoVendas.unshift(novaVenda);
   localStorage.setItem('historicoCaixa', JSON.stringify(historicoVendas));
 
-  // Zera a conta pendente daquela mesa após o pagamento
-  if (contasAtivas[origem]) {
-    delete contasAtivas[origem];
+  // Libera a mesa e zera seu consumo se a origem for uma mesa real do salão
+  if (origem !== "Venda Direta" && statusSalao[origem]) {
+    statusSalao[origem].status = "Livre";
+    statusSalao[origem].total = 0;
+    statusSalao[origem].itens = [];
+    localStorage.setItem('statusSalao', JSON.stringify(statusSalao));
   }
 
-  // Dispara a impressão térmica do Cupom de fechamento
+  // Dispara a impressão térmica do Cupom
   imprimirCupomFiscalCaixa(novaVenda);
 
-  // Reseta os campos do formulário e recarrega a tela
+  // Reseta os campos e recarrega as listas da tela
   document.getElementById('caixaMesa').value = '';
   document.getElementById('caixaValorTotal').value = '';
   carregarDadosCaixa();
 }
 
-function
+function imprimirCupomFiscalCaixa(venda) {
+  const cupomArea = document.getElementById('cupom-caixa');
+  
+  let cupomHTML = `
+    <div class="print-header">
+      QUIOSQUE SYSTEM<br>
+      COMPROVANTE DE PAGAMENTO<br>
+      ${venda.data}
+    </div>
+    <div class="print-linha">
+      <span>Origem:</span>
+      <span>${venda.origem}</span>
+    </div>
+    <div class="print-linha">
+      <span>Forma Pagto:</span>
+      <span>${venda.metodo}</span>
+    </div>
+    <div class="print-total class-linha">
+      <div style="display:flex; justify-content:space-between; width:100%;">
+        <span>TOTAL PAGO:</span>
+        <span>R$ ${venda.valor.toFixed(2).replace('.', ',')}</span>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:15px; font-size:11px; border-top:1px dashed #000; padding-top:5px;">
+      Venda finalizada com sucesso!<br>
+      Obrigado!
+    </div>
+  `;
+  
+  cupomArea.innerHTML = cupomHTML;
+  window.print();
+}
+
+// Recarrega os dados caso você mude de aba no navegador e retorne
+window.addEventListener('focus', carregarDadosCaixa);
+
+// Inicialização imediata ao abrir o arquivo
+carregarDadosCaixa();
+</script>
+</body></html>
