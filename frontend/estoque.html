@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Quiosque | Estoque</title>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#111;color:#fff;padding:22px}
+.table-container{background:#171719;border:1px solid rgba(255,122,26,.18);border-radius:20px;padding:12px;overflow-x:auto;margin-top:16px}
+table{width:100%;border-collapse:collapse;text-align:left}
+th,td{padding:14px;border-bottom:1px solid #2a2a2c}
+th{color:#bbb;font-size:14px;text-transform:uppercase}
+td{font-size:15px}
+.qtd-box{display:flex;align-items:center;gap:12px}
+.btn-qtd{width:32px;height:32px;border-radius:8px;border:1px solid #333;background:#0f0f10;color:#fff;font-weight:bold;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.btn-qtd:hover{border-color:#ff8d34;color:#ff8d34}
+.badge-status{padding:4px 8px;border-radius:6px;font-size:12px;font-weight:bold}
+.status-ok{background:rgba(46,204,113,0.15);color:#2ecc71;border:1px solid rgba(46,204,113,0.3)}
+.status-baixo{background:rgba(241,196,15,0.15);color:#f1c40f;border:1px solid rgba(241,196,15,0.3)}
+.status-zerado{background:rgba(231,76,60,0.15);color:#e74c3c;border:1px solid rgba(231,76,60,0.3)}
+button.btn-add{padding:12px 18px;border-radius:12px;background:linear-gradient(180deg,#ff8d34,#ff6d0f);border:none;color:#fff;font-weight:bold;cursor:pointer;font-size:14px}
+.filtro-abas{display:flex;gap:10px;margin-top:15px;flex-wrap:wrap}
+.btn-aba{padding:8px 14px;background:#1a1a1c;border:1px solid #333;border-radius:8px;color:#fff;cursor:pointer;font-weight:bold;font-size:13px}
+.btn-aba.active{background:#ff8d34;border-color:#ff8d34}
+</style></head><body>
+
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+  <h1>Controle de Insumos e Estoque</h1>
+  <button class="btn-add" onclick="adicionarNovoItem()">+ Novo Insumo</button>
+</div>
+
+<!-- Abas de navegação interna para organizar a quantidade imensa de ingredientes -->
+<div class="filtro-abas">
+  <button class="btn-aba active" onclick="filtrarEstoque('todos', this)">Todos</button>
+  <button class="btn-aba" onclick="filtrarEstoque('paes_carnes', this)">Pães & Carnes</button>
+  <button class="btn-aba" onclick="filtrarEstoque('queijos_laticinios', this)">Queijos & Laticínios</button>
+  <button class="btn-aba" onclick="filtrarEstoque('complementos', this)">Complementos & Molhos</button>
+  <button class="btn-aba" onclick="filtrarEstoque('bebidas_sobremesas', this)">Bebidas & Doces</button>
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Insumo / Ingrediente</th>
+        <th>Qtd. Atual</th>
+        <th>Alerta Mín.</th>
+        <th>Status</th>
+        <th>Última Atualização</th>
+      </tr>
+    </thead>
+    <tbody id="corpoEstoque">
+      <!-- Mapeamento completo gerado dinamicamente -->
+    </tbody>
+  </table>
+</div>
+
+<script>
+// Lista de insumos baseada inteiramente na ficha técnica implícita do menu.json
+const estoqueInicialCardapio = [
+  // Pães e Carnes
+  { id: 1, nome: "Pão Brioche (Hambúrguer)", qtd: 60, minimo: 20, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 2, nome: "Pão Australiano (Hambúrguer)", qtd: 30, minimo: 10, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 3, nome: "Pão Árabe (Hambúrguer)", qtd: 20, minimo: 8, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 4, nome: "Pão de Hot Dog (HD)", qtd: 40, minimo: 15, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 5, nome: "Carne Artesanal (Blend)", qtd: 80, minimo: 25, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 6, nome: "Carne Industrial (Burguer)", qtd: 20, minimo: 5, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 7, nome: "Carne de Sol Desfiada (Lanches/Pastel)", qtd: 15, minimo: 5, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 8, nome: "Costela Desfiada", qtd: 10, minimo: 4, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 9, nome: "Calabresa Defumada / Fininha", qtd: 12, minimo: 4, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 10, nome: "Frango Desfiado", qtd: 14, minimo: 5, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 11, nome: "Carne Moída Temperada", qtd: 12, minimo: 4, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 12, nome: "Camarão Limpo", qtd: 8, minimo: 3, cat: "paes_carnes", atualizado: "Início do dia" },
+  { id: 13, nome: "Salsicha / Calabresa Fininha HD", qtd: 35, minimo: 10, cat: "paes_carnes", atualizado: "Início do dia" },
+
+  // Queijos e Laticínios
+  { id: 14, nome: "Queijo Cheddar (Fatias)", qtd: 100, minimo: 30, cat: "queijos_laticinios", atualizado: "Início do dia" },
+  { id: 15, nome: "Queijo Mussarela (Fatias)", qtd: 90, minimo: 30, cat: "queijos_laticinios", atualizado: "Início do dia" },
+  { id: 16, nome: "Queijo Coalho (Espeto/Chapa)", qtd: 25, minimo: 10, cat: "queijos_laticinios", atualizado: "Início do dia" },
+  { id: 17, nome: "Queijo Prato (Fatias)", qtd: 30, minimo: 10, cat: "queijos_laticinios", atualizado: "Início do dia" },
+  { id: 18, nome: "Cheddar Cremoso (Bisnaga)", qtd: 15, minimo: 5, cat: "queijos_laticinios", atualizado: "Início do dia" },
+  { id: 19, nome: "Cream Cheese / Catupiry", qtd: 18, minimo: 6, cat: "queijos_laticinios", atualizado: "Início do dia" },
+  { id: 20, nome: "Presunto Fatiado", qtd: 40, minimo: 15, cat: "queijos_laticinios", atualizado: "Início do dia" },
+
+  // Complementos e Crocâncias
+  { id: 21, nome: "Bacon Fatias / Farofa", qtd: 15, minimo: 5, cat: "complementos", atualizado: "Início do dia" },
+  { id: 22, nome: "Ovos", qtd: 60, minimo: 18, cat: "complementos", atualizado: "Início do dia" },
+  { id: 23, nome: "Doritos (Sacos)", qtd: 20, minimo: 5, cat: "complementos", atualizado: "Início do dia" },
+  { id: 24, nome: "Onion Rings (Anéis de Cebola)", qtd: 10, minimo: 3, cat: "complementos", atualizado: "Início do dia" },
+  { id: 25, nome: "Cebola Crispy", qtd: 5, minimo: 2, cat: "complementos", atualizado: "Início do dia" },
+  { id: 26, nome: "Cebola Caramelizada / Branca", qtd: 8, minimo: 3, cat: "complementos", atualizado: "Início do dia" },
+  { id: 27, nome: "Batata Frita Congelada (Pacotes)", qtd: 25, minimo: 8, cat: "complementos", atualizado: "Início do dia" },
+  { id: 28, nome: "Massa de Pastel (Unidades)", qtd: 120, minimo: 40, cat: "complementos", atualizado: "Início do dia" },
+  { id: 29, nome: "Geleia de Pimenta / Ketchup Goiabada", qtd: 6, minimo: 2, cat: "complementos", atualizado: "Início do dia" },
+  { id: 30, nome: "Molho Especial / Barbecue / Smash", qtd: 12, minimo: 4, cat: "complementos", atualizado: "Início do dia" },
+  { id: 31, nome: "Salada (Alface/Tomate/Milho/Azeitona)", qtd: 15, minimo: 5, cat: "complementos", atualizado: "Início do dia" },
+
+  // Sobremesas e Bebidas
+  { id: 32, nome: "Polpa de Morango / Frutas Vitaminas", qtd: 40, minimo: 15, cat: "bebidas_sobremesas", atualizado: "Início do dia" },
+  { id: 33, nome: "Leite Integral (Litros)", qtd: 24, minimo: 8, cat: "bebidas_sobremesas", atualizado: "Início do dia" },
+  { id: 34, nome: "Base Sorvete / Pó Ovoninho", qtd: 10, minimo: 3, cat: "bebidas_sobremesas", atualizado: "Início do dia" },
+  { id: 35, nome: "Bolo no Pote (Unidades Prontas)", qtd: 15, minimo: 5, cat: "bebidas_sobremesas", atualizado: "Início do dia" },
+  { id: 36, nome: "Din Din Gourmet (Unidades Prontas)", qtd: 30, minimo: 10, cat: "bebidas_sobremesas", atualizado: "Início do dia" },
+  { id: 37, nome: "Mousse de Maracujá (Potes)", qtd: 12, minimo: 4, cat: "bebidas_sobremesas", atualizado: "Início do dia" },
+  { id: 38, nome: "Chocolate Alpino / Bis (Doces)", qtd: 15, minimo: 5, cat: "bebidas_sobremesas", atualizado: "Início do dia" },
+  { id: 39, nome: "Insumos Drinks (Aperol/Campari/Vodka)", qtd: 10, minimo: 3, cat: "bebidas_sobremesas", atualizado: "Início do dia" }
+];
+
+let estoqueAtual = JSON.parse(localStorage.getItem('quiosqueEstoqueFicha')) || estoqueInicialCardapio;
+let filtroAtual = 'todos';
+
+function renderizarEstoque() {
+  const tabela = document.getElementById('corpoEstoque');
+  let html = '';
+
+  estoqueAtual.forEach(item => {
+    // Se não pertencer à aba selecionada, pula o item
+    if (filtroAtual !== 'todos' && item.cat !== filtroAtual) return;
+
+    let statusClass = 'status-ok';
+    let statusTexto = 'Disponível';
+    
+    if (item.qtd === 0) {
+      statusClass = 'status-zerado';
+      statusTexto = 'Esgotado';
+    } else if (item.qtd <= item.minimo) {
+      statusClass = 'status-baixo';
+      statusTexto = 'Baixo';
+    }
+
+    html += `
+      <tr>
+        <td style="font-weight:bold; color:#ff8d34;">${item.nome}</td>
+        <td>
+          <div class="qtd-box">
+            <button class="btn-qtd" onclick="mudarQuantidade(${item.id}, -1)">-</button>
+            <span style="font-size:16px; font-weight:bold; min-width:35px; text-align:center;">${item.qtd}</span>
+            <button class="btn-qtd" onclick="mudarQuantidade(${item.id}, 1)">+</button>
+          </div>
+        </td>
+        <td style="color:#bbb; font-weight:bold; padding-left:25px;">${item.minimo}</td>
+        <td><span class="badge-status ${statusClass}">${statusTexto}</span></td>
+        <td style="color:#bbb; font-size:14px;">${item.atualizado}</td>
+      </tr>
+    `;
+  });
+
+  tabela.innerHTML = html;
+}
+
+function mudarQuantidade(id, valor) {
+  const item = estoqueAtual.find(i => i.id === id);
+  if (item) {
+    const novaQtd = item.qtd + valor;
+    if (novaQtd >= 0) {
+      item.qtd = novaQtd;
+      item.atualizado = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      localStorage.setItem('quiosqueEstoqueFicha', JSON.stringify(estoqueAtual));
+      renderizarEstoque();
+    }
+  }
+}
+
+function filtrarEstoque(categoria, elemento) {
+  filtroAtual = categoria;
+  document.querySelectorAll('.btn-aba').forEach(btn => btn.classList.remove('active'));
+  elemento.classList.add('active');
+  renderizarEstoque();
+}
+
+function adicionarNovoItem() {
+  const nome = prompt("Digite o nome do novo insumo/ingrediente:");
+  if (!nome) return;
+  const qtdInicial = parseInt(prompt(`Quantidade atual em estoque para [ ${nome} ]:`)) || 0;
+  const qtdMinima = parseInt(prompt(`Estoque mínimo de alerta para [ ${nome} ]:`)) || 5;
+  
+  const catPrompt = prompt("Escolha a categoria:\n1 - Pães & Carnes\n2 - Queijos & Laticínios\n3 - Complementos & Molhos\n4 - Bebidas & Doces");
+  let categoria = 'complementos';
+  if (catPrompt === '1') categoria = 'paes_carnes';
+  if (catPrompt === '2') categoria = 'queijos_laticinios';
+  if (catPrompt === '4') categoria = 'bebidas_sobremesas';
+
+  const novoInsumo = {
+    id: Date.now(),
+    nome: nome,
+    qtd: qtdInicial,
+    minimo: qtdMinima,
+    cat: categoria,
+    atualizado: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  };
+
+  estoqueAtual.push(novoInsumo);
+  localStorage.setItem('quiosqueEstoqueFicha', JSON.stringify(estoqueAtual));
+  renderizarEstoque();
+}
+
+renderizarEstoque();
+</script>
+</body></html>

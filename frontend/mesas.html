@@ -5,15 +5,203 @@
 *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#111;color:var(--txt);padding:22px}
 header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
-.mesa{height:110px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;border:1px solid rgba(255,255,255,.08)}
+.mesa{height:110px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;border:1px solid rgba(255,255,255,.08);cursor:pointer}
 .livre{background:rgba(46,204,113,.12);color:#9af3bc}
 .ocupada{background:rgba(255,77,77,.12);color:#ff9c9c}
+
+/* --- ESTILO DO MODAL (Sem alterar o visual de fundo) --- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  justify-content: center; align-items: center;
+  padding: 15px; z-index: 1000;
+}
+.modal-content {
+  background: var(--card);
+  border: 1px solid rgba(255,122,26,.18);
+  border-radius: 20px;
+  width: 100%; max-width: 400px;
+  padding: 20px;
+}
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 15px; border-bottom: 1px solid #2a2a2a; padding-bottom: 10px;
+}
+.modal-header h2 { margin: 0; font-size: 20px; color: var(--accent); }
+.close-btn { background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; }
+.order-list { margin: 15px 0; max-height: 200px; overflow-y: auto; }
+.order-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #2a2a2a; font-size: 14px; }
+.total-box { display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-top: 15px; padding-top: 10px; border-top: 1px solid #2a2a2a; color: var(--green); }
+.btn-group { display: flex; gap: 10px; margin-top: 20px; }
+.btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 14px; }
+.btn-print { background: #34495e; color: #fff; }
+.btn-close-table { background: var(--green); color: #fff; }
+
+/* --- REGRAS DE IMPRESSÃO (Formatado para Impressora Térmica) --- */
+@media print {
+  body * { display: none !important; } /* Esconde tudo do site */
+  #print-section, #print-section * { display: block !important; } /* Mostra só o cupom */
+  #print-section {
+    position: absolute; left: 0; top: 0; width: 100% !important;
+    color: #000 !important; background: #fff !important;
+    font-family: 'Courier New', Courier, monospace !important; font-size: 12px !important;
+    padding: 0; margin: 0;
+  }
+  .print-header { text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; }
+  .print-item { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .print-total { border-top: 1px dashed #000; margin-top: 10px; padding-top: 5px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between; }
+  .print-footer { text-align: center; margin-top: 15px; font-size: 11px; border-top: 1px dashed #000; padding-top: 5px; }
+}
 </style></head>
 <body>
+
 <header><h1>Controle de Mesas</h1><div style="color:var(--accent);font-weight:bold">Quiosque</div></header>
+
 <div class="grid">
-<div class="mesa livre">Mesa 1</div><div class="mesa livre">Mesa 2</div><div class="mesa ocupada">Mesa 3</div>
-<div class="mesa livre">Mesa 4</div><div class="mesa ocupada">Mesa 5</div><div class="mesa livre">Mesa 6</div>
-<div class="mesa livre">Mesa 7</div><div class="mesa livre">Mesa 8</div>
+  <!-- Adicionado a função de clique em cada mesa passando o número e se está ocupada -->
+  <div class="mesa livre" onclick="abrirMesa(1, false)">Mesa 1</div>
+  <div class="mesa livre" onclick="abrirMesa(2, false)">Mesa 2</div>
+  <div class="mesa ocupada" onclick="abrirMesa(3, true)">Mesa 3</div>
+  <div class="mesa livre" onclick="abrirMesa(4, false)">Mesa 4</div>
+  <div class="mesa ocupada" onclick="abrirMesa(5, true)">Mesa 5</div>
+  <div class="mesa livre" onclick="abrirMesa(6, false)">Mesa 6</div>
+  <div class="mesa livre" onclick="abrirMesa(7, false)">Mesa 7</div>
+  <div class="mesa livre" onclick="abrirMesa(8, false)">Mesa 8</div>
 </div>
+
+<!-- --- POP-UP (MODAL) DE DETALHES DA MESA --- -->
+<div class="modal-overlay" id="mesaModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Mesa X</h2>
+      <button class="close-btn" onclick="fecharModal()">&times;</button>
+    </div>
+    <div id="modalBody">
+      <!-- O conteúdo do pedido vai mudar aqui dependendo da mesa -->
+    </div>
+  </div>
+</div>
+
+<!-- --- ÁREA OCULTA QUE SÓ APARECE NA IMPRESSORA TÉRMICA --- -->
+<div id="print-section" style="display: none;"></div>
+
+<script>
+// Dados simulados para as mesas ocupadas (Mesa 3 e Mesa 5)
+const pedidosMesas = {
+  3: {
+    itens: [
+      { qtd: 2, nome: 'Hambúrguer Duplo', preco: 22.00 },
+      { qtd: 1, nome: 'Batata Frita G', preco: 15.00 },
+      { qtd: 3, nome: 'Refrigerante Lata', preco: 6.00 }
+    ],
+    total: 77.00
+  },
+  5: {
+    itens: [
+      { qtd: 1, nome: 'Pastel de Frango', preco: 12.00 },
+      { qtd: 1, nome: 'Suco Natural', preco: 8.00 }
+    ],
+    total: 20.00
+  }
+};
+
+let mesaAtual = null;
+
+function abrirMesa(numero, ocupada) {
+  mesaAtual = numero;
+  const modal = document.getElementById('mesaModal');
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  
+  title.innerText = `Detalhes - Mesa ${numero}`;
+  
+  if (!ocupada || !pedidosMesas[numero]) {
+    body.innerHTML = `
+      <p style="color: var(--muted); text-align: center; margin: 30px 0;">Esta mesa está livre e não possui pedidos ativos.</p>
+      <button class="btn" style="background: #252525; color: #fff; width: 100%;" onclick="fecharModal()">Fechar</button>
+    `;
+  } else {
+    const pedido = pedidosMesas[numero];
+    let itensHTML = '';
+    
+    pedido.itens.forEach(item => {
+      itensHTML += `
+        <div class="order-item">
+          <span>${item.qtd}x ${item.nome}</span>
+          <span>R$ ${(item.qtd * item.preco).toFixed(2).replace('.', ',')}</span>
+        </div>
+      `;
+    });
+
+    body.innerHTML = `
+      <div class="order-list">${itensHTML}</div>
+      <div class="total-box">
+        <span>Total:</span>
+        <span>R$ ${pedido.total.toFixed(2).replace('.', ',')}</span>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-print" onclick="imprimirComanda(${numero})">Imprimir</button>
+        <button class="btn btn-close-table" onclick="fecharConta(${numero})">Fechar Conta</button>
+      </div>
+    `;
+  }
+  
+  modal.style.display = 'flex';
+}
+
+function fecharModal() {
+  document.getElementById('mesaModal').style.display = 'none';
+}
+
+function fecharConta(numero) {
+  if(confirm(`Deseja realmente fechar a conta da Mesa ${numero}?`)) {
+    alert(`Conta da Mesa ${numero} fechada com sucesso!`);
+    fecharModal();
+    // Aqui no futuro adicionaremos a função para mudar a cor da mesa para verde no backend
+  }
+}
+
+function imprimirComanda(numero) {
+  const pedido = pedidosMesas[numero];
+  if (!pedido) return;
+
+  const printSection = document.getElementById('print-section');
+  
+  // Estruturando o layout do cupom de 58mm/80mm
+  let cupomHTML = `
+    <div class="print-header">
+      QUIOSQUE SYSTEM<br>
+      CONTA - MESA ${numero}<br>
+      ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}
+    </div>
+  `;
+
+  pedido.itens.forEach(item => {
+    cupomHTML += `
+      <div class="print-item">
+        <span>${item.qtd}x ${item.nome}</span>
+        <span>R$ ${(item.qtd * item.preco).toFixed(2).replace('.', ',')}</span>
+      </div>
+    `;
+  });
+
+  cupomHTML += `
+    <div class="print-total">
+      <span>TOTAL:</span>
+      <span>R$ ${pedido.total.toFixed(2).replace('.', ',')}</span>
+    </div>
+    <div class="print-footer">
+      Obrigado pela preferência!<br>
+      Sistema de Gestão Quiosque
+    </div>
+  `;
+
+  printSection.innerHTML = cupomHTML;
+  
+  // Dispara a janela de impressão nativa do Windows
+  window.print();
+}
+</script>
 </body></html>
