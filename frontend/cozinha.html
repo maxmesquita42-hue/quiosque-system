@@ -8,100 +8,24 @@
 .mesa-titulo{font-size:20px;font-weight:bold;color:#ff8d34}
 .hora-pedido{font-size:14px;color:#bbb}
 .item-detalhe{font-size:16px;margin-bottom:14px;white-space:pre-line}
-.item-qtd{font-weight:bold;color:#ff6d0f;font-size:18px}
 button{padding:11px 14px;border-radius:12px;border:1px solid #333;color:#fff;font-weight:bold;cursor:pointer;width:100%;margin-top:8px}
-.btn-print{background:#232326;border-color:#444}
 .btn-concluir{background:linear-gradient(180deg,#2ecc71,#27ae60);border:none}
-
-/* --- ESTILO DE IMPRESSÃO DA COMANDA TÉRMICA (WINDOWS PRINT) --- */
-@media print {
-  body * { display: none !important; } 
-  #cupom-termico, #cupom-termico * { display: block !important; } 
-  #cupom-termico {
-    position: absolute; left: 0; top: 0; width: 100%;
-    color: #000 !important; background: #fff !important;
-    font-family: 'Courier New', Courier, monospace !important; font-size: 14px !important;
-    padding: 0; margin: 0;
-  }
-  .print-topo { text-align: center; font-weight: bold; font-size: 16px; border-bottom: 1px dashed #000; padding-bottom: 6px; margin-bottom: 10px; }
-  .print-corpo { font-size: 16px; margin: 10px 0; }
-  .print-obs { font-style: italic; margin-top: 5px; }
-  .print-rodape { text-align: center; font-size: 11px; border-top: 1px dashed #000; margin-top: 15px; padding-top: 4px; }
-}
 </style></head><body>
 
 <h1>Comandas da Cozinha</h1>
 <div class="grid-pedidos" id="listaCozinha"></div>
 
-<div id="cupom-termico" style="display: none;"></div>
-
 <script>
-// A cozinha agora lê o que foi enviado pelo pedido
+// --- FUNÇÕES DE INTEGRAÇÃO ---
+function getDB() {
+  const data = localStorage.getItem('sistemaQuiosque');
+  return data ? JSON.parse(data) : { salao: {}, cozinha: [], historico: [] };
+}
+function saveDB(db) {
+  localStorage.setItem('sistemaQuiosque', JSON.stringify(db));
+}
+
+// --- LÓGICA DA COZINHA ---
 function atualizarPainelCozinha() {
+  const db = getDB();
   const listaCozinha = document.getElementById('listaCozinha');
-  // Obtemos a fila completa do localStorage
-  let filaCozinha = JSON.parse(localStorage.getItem('filaCozinha')) || [];
-  
-  if (filaCozinha.length === 0) {
-    listaCozinha.innerHTML = `<p style="color: #bbb; grid-column: 1/-1; text-align: center; margin-top: 20px;">Nenhum pedido pendente na cozinha.</p>`;
-    return;
-  }
-
-  let htmlPedidos = '';
-  filaCozinha.forEach((p, index) => {
-    htmlPedidos += `
-      <div class="card">
-        <div>
-          <div class="card-header">
-            <span class="mesa-titulo">${p.mesa}</span>
-            <span class="hora-pedido">${p.hora}</span>
-          </div>
-          <div class="item-detalhe" style="font-family: monospace;">
-            ${p.produtos}
-          </div>
-        </div>
-        <div>
-          <button class="btn-print" onclick="imprimirCupomCozinha(${index})">Imprimir Comanda</button>
-          <button class="btn-concluir" onclick="concluirPedidoCozinha(${index})">Concluir</button>
-        </div>
-      </div>
-    `;
-  });
-  
-  listaCozinha.innerHTML = htmlPedidos;
-}
-
-function concluirPedidoCozinha(index) {
-  let filaCozinha = JSON.parse(localStorage.getItem('filaCozinha')) || [];
-  filaCozinha.splice(index, 1);
-  localStorage.setItem('filaCozinha', JSON.stringify(filaCozinha));
-  atualizarPainelCozinha();
-}
-
-function imprimirCupomCozinha(index) {
-  let filaCozinha = JSON.parse(localStorage.getItem('filaCozinha')) || [];
-  const pedido = filaCozinha[index];
-  if (!pedido) return;
-
-  const areaImpressao = document.getElementById('cupom-termico');
-  
-  areaImpressao.innerHTML = `
-    <div class="print-topo">
-      COZINHA - PRODUÇÃO<br>
-      ${pedido.mesa} - ${pedido.hora}
-    </div>
-    <div class="print-corpo">
-      ${pedido.produtos.replace(/\n/g, '<br>')}
-    </div>
-    <div class="print-rodape">
-      --------------------------------<br>
-      Controle Interno
-    </div>
-  `;
-  window.print();
-}
-
-setInterval(atualizarPainelCozinha, 2000);
-atualizarPainelCozinha();
-</script>
-</body></html>

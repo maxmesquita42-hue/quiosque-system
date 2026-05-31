@@ -7,391 +7,75 @@
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #111; color: #fff; padding: 22px; }
-    
-    .container-geral { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-    .card { background: #171719; border: 1px solid rgba(255,122,26,0.18); border-radius: 20px; padding: 20px; width: 100%; }
-    
-    h2 { margin-top: 0; font-size: 28px; color: #fff; }
-    h3 { margin-top: 0; font-size: 20px; color: #ff7a1a; border-bottom: 1px solid #222; padding-bottom: 8px; }
-    
-    label { display: block; margin: 14px 0 6px; color: #bbb; font-size: 14px; font-weight: bold; }
-    select, textarea, input { width: 100%; padding: 14px; background: #1f1f22; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 15px; outline: none; }
-    select:focus, textarea:focus { border-color: #ff7a1a; }
-    
-    optgroup { background: #171719; color: #ff7a1a; font-weight: bold; font-style: normal; }
-    option { background: #1f1f22; color: #fff; font-weight: normal; }
-    
-    button.btn-enviar { width: 100%; padding: 14px; margin-top: 20px; border-radius: 12px; background: linear-gradient(180deg, #ff8d34, #ff6d0f); border: none; color: #fff; font-weight: bold; cursor: pointer; font-size: 16px; }
-    button.btn-enviar:hover { background: linear-gradient(180deg, #ff9e4f, #ff7a1a); }
-
-    /* Painel visual do status das 8 mesas */
-    .grid-mesas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-    @media(max-width: 500px) { .grid-mesas { grid-template-columns: repeat(2, 1fr); } }
-    .status-mesa { padding: 10px; border-radius: 10px; text-align: center; font-size: 13px; font-weight: bold; }
-    .status-livre { background: rgba(40, 167, 69, 0.15); border: 1px solid #28a745; color: #28a745; }
-    .status-ocupada { background: rgba(220, 53, 69, 0.15); border: 1px solid #dc3545; color: #dc3545; }
-
-    /* Divisão das telas de Cozinha e Caixa */
-    .paineis-sistema { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media(max-width: 700px) { .paineis-sistema { grid-template-columns: 1fr; } }
-    
-    .lista-painel { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
-    .item-painel { background: #1f1f22; border: 1px solid #333; padding: 12px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-    .conteudo-pedido { white-space: pre-line; font-family: monospace; color: #ccc; margin-top: 5px; }
-    
-    .btn-painel { border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; }
-    .btn-pronto { background: #ff7a1a; }
-    .btn-pagar { background: #28a745; }
+    .container-geral { max-width: 900px; margin: 0 auto; }
+    .card { background: #171719; border: 1px solid rgba(255,122,26,0.18); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+    button.btn-enviar { width: 100%; padding: 14px; background: linear-gradient(180deg, #ff8d34, #ff6d0f); border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 12px; }
+    select, textarea { width: 100%; padding: 14px; background: #1f1f22; border: 1px solid #333; color: #fff; border-radius: 12px; }
   </style>
 </head>
 <body>
 
 <div class="container-geral">
-
-  <!-- CARD DO PEDIDO (IGUAL À SUA INTERFACE) -->
   <div class="card">
     <h2>Novo Pedido</h2>
-    
     <form id="formPedido" onsubmit="enviarPedido(event)">
       <label>Mesa</label>
       <select id="selectMesa" required>
         <option value="">Selecione uma mesa</option>
-        <!-- Gerado dinamicamente via JS (Apenas de 1 a 8) -->
+        <option value="Mesa 1">Mesa 1</option><option value="Mesa 2">Mesa 2</option>
+        <option value="Mesa 3">Mesa 3</option><option value="Mesa 4">Mesa 4</option>
+        <option value="Mesa 5">Mesa 5</option><option value="Mesa 6">Mesa 6</option>
+        <option value="Mesa 7">Mesa 7</option><option value="Mesa 8">Mesa 8</option>
       </select>
-
       <label>Produto</label>
-      <select id="selectProduto" onchange="adicionarProdutoNaObs()">
-        <option value="">Selecione um produto</option>
-        <!-- Todo o cardápio mapeado aqui -->
-      </select>
-
-      <label>Observações / Itens do Pedido</label>
-      <textarea id="obsPedido" rows="6" placeholder="Os produtos selecionados aparecerão aqui..."></textarea>
-
+      <select id="selectProduto" onchange="adicionarProdutoNaObs()"><option value="">Selecione um produto</option></select>
+      <label>Itens do Pedido</label>
+      <textarea id="obsPedido" rows="4"></textarea>
       <button type="submit" class="btn-enviar">Adicionar Pedido</button>
     </form>
-
-    <label style="margin-top: 20px;">Painel de Ocupação do Salão:</label>
-    <div id="gridMesas" class="grid-mesas"></div>
   </div>
-
-  <!-- SESSÕES OPERACIONAIS INTEGRADAS -->
-  <div class="paineis-sistema">
-    
-    <!-- ABA DA COZINHA -->
-    <div class="card">
-      <h3>👨‍🍳 Área da Cozinha</h3>
-      <ul id="listaCozinha" class="lista-painel"></ul>
-    </div>
-
-    <!-- ABA DO CAIXA -->
-    <div class="card">
-      <h3>💰 Área do Caixa</h3>
-      <ul id="listaCaixa" class="lista-painel"></ul>
-    </div>
-
-  </div>
-
 </div>
 
 <script>
-// Objeto de controle em memória para gerenciar o salão (Mesas de 1 a 8)
-const statusSalao = {};
-for (let i = 1; i <= 8; i++) {
-  statusSalao[`Mesa ${i}`] = { status: "Livre", total: 0, itens: [] };
+// --- FUNÇÕES DE INTEGRAÇÃO ---
+function getDB() {
+  const data = localStorage.getItem('sistemaQuiosque');
+  return data ? JSON.parse(data) : { salao: {}, cozinha: [], historico: [] };
 }
 
-const cardapioCompleto = {
-  "categorias": [
-    {
-      "nome": "Hambúrgueres",
-      "itens": [
-        { "nome": "Cheddar Burguer", "preco": 18.0 },
-        { "nome": "Nachos Burger", "preco": 23.0 },
-        { "nome": "Prime Burger", "preco": 25.0 },
-        { "nome": "Brutus Burger", "preco": 27.0 },
-        { "nome": "Apimentado", "preco": 21.0 },
-        { "nome": "Crispy Burger", "preco": 20.0 },
-        { "nome": "Meadhouse", "preco": 24.0 },
-        { "nome": "Duplicado", "preco": 22.0 },
-        { "nome": "Furioso", "preco": 26.0 },
-        { "nome": "Magnífico", "preco": 24.0 },
-        { "nome": "Gostosão", "preco": 21.0 },
-        { "nome": "Simplão", "preco": 15.0 },
-        { "nome": "Cebolinha", "preco": 22.0 },
-        { "nome": "Goiabinha", "preco": 23.0 },
-        { "nome": "Catu Burguer", "preco": 26.0 },
-        { "nome": "Costelinha", "preco": 28.0 }
-      ]
-    },
-    {
-      "nome": "Entradinhas",
-      "itens": [
-        { "nome": "Batata Premium", "preco": 25.0 },
-        { "nome": "Batata Simples", "preco": 13.0 },
-        { "nome": "Batata Chips", "preco": 16.0 },
-        { "nome": "Mini Coxinhas Empanada", "preco": 20.0 },
-        { "nome": "Batata Recheada", "preco": 20.0 }
-      ]
-    },
-    {
-      "nome": "Vitaminas",
-      "itens": [
-        { "nome": "Morango", "preco": 10.0 },
-        { "nome": "Manga", "preco": 9.0 },
-        { "nome": "Acerola", "preco": 9.0 },
-        { "nome": "Maracujá", "preco": 10.0 },
-        { "nome": "Goiaba", "preco": 9.0 },
-        { "nome": "Graviola", "preco": 9.0 }
-      ]
-    },
-    {
-      "nome": "Hot Dog Gourmet",
-      "itens": [
-        { "nome": "Hot Dog Apimentada", "preco": 15.0 },
-        { "nome": "Hot Burger", "preco": 17.0 },
-        { "nome": "Hot Dog de Carne", "preco": 12.0 },
-        { "nome": "Hot Dog de Bacon", "preco": 16.0 },
-        { "nome": "Hot Dog X-Tudão", "preco": 20.0 },
-        { "nome": "Hot Dog do Chefe", "preco": 18.0 }
-      ]
-    },
-    {
-      "nome": "Sobremesas",
-      "itens": [
-        { "nome": "Milk de Ovoninho", "preco": 16.0 },
-        { "nome": "Milk de Morango", "preco": 17.0 },
-        { "nome": "Bolo no Pote", "preco": 10.0 },
-        { "nome": "Din Din Gourmet", "preco": 6.0 },
-        { "nome": "Mousse de Maracujá", "preco": 6.0 }
-      ]
-    },
-    {
-      "nome": "Pastéis Raiz",
-      "itens": [
-        { "nome": "Frango", "preco": 6.0 },
-        { "nome": "Queijo", "preco": 6.0 },
-        { "nome": "Carne Moída", "preco": 6.0 },
-        { "nome": "Calabresa", "preco": 6.0 },
-        { "nome": "Camarão", "preco": 7.0 },
-        { "nome": "Presunto + Queijo", "preco": 6.0 },
-        { "nome": "Carne de Sol", "preco": 8.0 }
-      ]
-    },
-    {
-      "nome": "Pastéis Doces",
-      "itens": [
-        { "nome": "Alpino", "preco": 10.0 },
-        { "nome": "Doce de Leite", "preco": 9.0 },
-        { "nome": "Bis", "preco": 8.0 }
-      ]
-    },
-    {
-      "nome": "Pastéis Premium",
-      "itens": [
-        { "nome": "Carne de Sol + Queijo + Cream Cheese", "preco": 15.0 },
-        { "nome": "Frango + Camarão + Cream Cheese", "preco": 16.0 },
-        { "nome": "Calabresa + Azeitona + Tomate + Queijo", "preco": 13.0 },
-        { "nome": "Carne Moída + Azeitona + Frango", "preco": 13.0 },
-        { "nome": "Queijo + Carne de Sol + Frango + Cheddar Cremoso", "preco": 15.0 },
-        { "nome": "Cebola Caramelizada + Molho Barbecue + Carne de Sol", "preco": 16.0 },
-        { "nome": "Frango + Bacon + Cream Cheese", "preco": 15.0 }
-      ]
-    },
-    {
-      "nome": "Drinks",
-      "itens": [
-        { "nome": "Aperol Spritz", "preco": 12.0 },
-        { "nome": "Caipiroska", "preco": 7.0 },
-        { "nome": "Caipirinha", "preco": 6.0 },
-        { "nome": "Campari Dose", "preco": 9.0 },
-        { "nome": "Laramora", "preco": 10.0 }
-      ]
-    }
-  ]
-};
-
-let filaCozinha = [];
-
-function carregarFormulario() {
-  const selectMesa = document.getElementById('selectMesa');
-  const selectProduto = document.getElementById('selectProduto');
-
-  // Ajustado estritamente para as suas 8 mesas reais
-  selectMesa.innerHTML = '<option value="">Selecione uma mesa</option>';
-  for (let i = 1; i <= 8; i++) {
-    let opt = document.createElement('option');
-    opt.value = `Mesa ${i}`;
-    opt.textContent = `Mesa ${i}`;
-    selectMesa.appendChild(opt);
-  }
-
-  // Mapeia os produtos guardando os dados em formato JSON no value
-  cardapioCompleto.categorias.forEach(cat => {
-    let grupo = document.createElement('optgroup');
-    grupo.label = cat.nome;
-
-    cat.itens.forEach(item => {
-      let opt = document.createElement('option');
-      opt.value = JSON.stringify(item); 
-      opt.textContent = `${item.nome} - R$ ${item.preco.toFixed(2)}`;
-      grupo.appendChild(opt);
-    });
-
-    selectProduto.appendChild(grupo);
-  });
-
-  atualizarVisualMesas();
+function saveDB(db) {
+  localStorage.setItem('sistemaQuiosque', JSON.stringify(db));
 }
 
-// Escreve os itens selecionados diretamente na textarea por clique
-function adicionarProdutoNaObs() {
-  const selectProduto = document.getElementById('selectProduto');
-  const txtObs = document.getElementById('obsPedido');
-  
-  if (selectProduto.value !== "") {
-    const produtoInfo = JSON.parse(selectProduto.value);
-    
-    if (txtObs.value.trim() !== "") {
-      txtObs.value += "\n" + produtoInfo.nome;
-    } else {
-      txtObs.value = produtoInfo.nome;
-    }
-    
-    // Acumula os valores financeiros de cada clique de forma invisível no próprio campo
-    txtObs.dataset.precoAcumulado = (parseFloat(txtObs.dataset.precoAcumulado) || 0) + produtoInfo.preco;
-    
-    selectProduto.value = ""; // Reseta o seletor permitindo cliques repetidos
-  }
-}
-
-// Dispara o pedido, ocupa a mesa e notifica os painéis
+// --- LÓGICA DO PEDIDO ---
 function enviarPedido(event) {
   event.preventDefault();
-  
   const mesa = document.getElementById('selectMesa').value;
-  const txtObs = document.getElementById('obsPedido');
-  const itensPedidos = txtObs.value;
-  const valorDoPedido = parseFloat(txtObs.dataset.precoAcumulado) || 0;
+  const obs = document.getElementById('obsPedido');
+  const valor = parseFloat(obs.dataset.precoAcumulado) || 0;
+  
+  if (!mesa || !obs.value) return alert("Selecione mesa e itens!");
 
-  if (itensPedidos.trim() === "") {
-    alert("Por favor, selecione ao menos um produto.");
-    return;
-  }
+  let db = getDB();
 
-  // Ocupa a mesa e adiciona os valores à comanda correspondente
-  statusSalao[mesa].status = "Ocupada";
-  statusSalao[mesa].total += valorDoPedido;
-  statusSalao[mesa].itens.push(itensPedidos);
+  // 1. Atualiza dados da mesa no salão
+  if (!db.salao[mesa]) db.salao[mesa] = { status: "Ocupada", total: 0, itens: [] };
+  db.salao[mesa].status = "Ocupada";
+  db.salao[mesa].total += valor;
+  db.salao[mesa].itens.push(obs.value);
 
-  // Manda para a fila da Cozinha
-  filaCozinha.push({
-    id: Date.now(),
-    mesa: mesa,
-    produtos: itensPedidos,
-    hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-  });
+  // 2. Envia para a Cozinha
+  db.cozinha.push({ id: Date.now(), mesa: mesa, itens: obs.value, hora: new Date().toLocaleTimeString() });
 
-  // Limpa o formulário de lançamento
+  saveDB(db);
+  alert("Pedido enviado para a cozinha e para a mesa " + mesa + "!");
   document.getElementById('formPedido').reset();
-  txtObs.dataset.precoAcumulado = 0;
-
-  // Atualiza as pontas do sistema
-  atualizarVisualMesas();
-  atualizarCozinha();
-  atualizarCaixa();
+  obs.dataset.precoAcumulado = 0;
 }
 
-// Atualiza o grid de monitoramento visual das mesas
-function atualizarVisualMesas() {
-  const grid = document.getElementById('gridMesas');
-  grid.innerHTML = "";
-
-  for (let i = 1; i <= 8; i++) {
-    const nomeMesa = `Mesa ${i}`;
-    const dados = statusSalao[nomeMesa];
-    const div = document.createElement('div');
-    div.className = `status-mesa ${dados.status === 'Livre' ? 'status-livre' : 'status-ocupada'}`;
-    div.textContent = `${nomeMesa}: ${dados.status}`;
-    grid.appendChild(div);
-  }
-}
-
-// Atualiza os pedidos na tela da Cozinha
-function atualizarCozinha() {
-  const lista = document.getElementById('listaCozinha');
-  lista.innerHTML = "";
-
-  if (filaCozinha.length === 0) {
-    lista.innerHTML = "<li style='color:#666; padding: 10px;'>Nenhum preparo pendente</li>";
-    return;
-  }
-
-  filaCozinha.forEach(p => {
-    const li = document.createElement('li');
-    li.className = "item-painel";
-    li.innerHTML = `
-      <div>
-        <strong>${p.mesa}</strong> <small style='color:#777;'>(${p.hora})</small>
-        <div class="conteudo-pedido">${p.produtos}</div>
-      </div>
-      <button class="btn-painel btn-pronto" onclick="concluirPreparo(${p.id})">Pronto ✓</button>
-    `;
-    lista.appendChild(li);
-  });
-}
-
-function concluirPreparo(id) {
-  filaCozinha = filaCozinha.filter(p => p.id !== id);
-  atualizarCozinha();
-}
-
-// Atualiza as contas abertas na tela do Caixa
-function atualizarCaixa() {
-  const lista = document.getElementById('listaCaixa');
-  lista.innerHTML = "";
-  let possuiOcupada = false;
-
-  for (let i = 1; i <= 8; i++) {
-    const nomeMesa = `Mesa ${i}`;
-    const dados = statusSalao[nomeMesa];
-
-    if (dados.status === "Ocupada") {
-      possuiOcupada = true;
-      const li = document.createElement('li');
-      li.className = "item-painel";
-      li.innerHTML = `
-        <div>
-          <strong>${nomeMesa}</strong>
-          <div style='color:#ff7a1a; font-weight:bold; margin-top:4px;'>Total: R$ ${dados.total.toFixed(2)}</div>
-        </div>
-        <button class="btn-painel btn-pagar" onclick="liberarMesa('${nomeMesa}')">Pagar e Liberar</button>
-      `;
-      lista.appendChild(li);
-    }
-  }
-
-  if (!possuiOcupada) {
-    lista.innerHTML = "<li style='color:#666; padding: 10px;'>Nenhuma comanda ativa</li>";
-  }
-}
-
-// Ação do Caixa que liquida a conta e libera a mesa automaticamente
-function liberarMesa(nomeMesa) {
-  if (confirm(`Confirmar encerramento da conta da ${nomeMesa}? O status mudará para Livre.`)) {
-    statusSalao[nomeMesa].status = "Livre";
-    statusSalao[nomeMesa].total = 0;
-    statusSalao[nomeMesa].itens = [];
-
-    atualizarVisualMesas();
-    atualizarCaixa();
-  }
-}
-
-// Inicializadores automáticos
-carregarFormulario();
-atualizarCozinha();
-atualizarCaixa();
-</script>
-</body>
-</html>
+function adicionarProdutoNaObs() {
+  const select = document.getElementById('selectProduto');
+  if (select.value) {
+    const item = JSON.parse(select.value);
+    const obs = document.getElementById('obsPedido');
+    obs.value += (obs.value ? "\n" : "") + item.nome;

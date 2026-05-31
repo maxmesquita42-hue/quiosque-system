@@ -1,39 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Quiosque | Relatórios</title>
 <style>
-*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#111;color:#fff;padding:22px}
-.grid-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:20px}
-.card{background:#171719;border:1px solid rgba(255,122,26,.18);border-radius:20px;padding:18px}
-.card h3{margin:0 0 10px;color:#bbb;font-size:14px;text-transform:uppercase;letter-spacing:1px}
-.card .number{font-size:28px;font-weight:bold;color:#ff8d34}
-.card .number.green{color:#2ecc71}
-h2{margin-top:20px;color:#ff8d34;font-size:22px;border-bottom:1px solid #333;padding-bottom:10px}
-.table-container{background:#171719;border:1px solid rgba(255,122,26,.18);border-radius:20px;padding:12px;overflow-x:auto}
-table{width:100%;border-collapse:collapse;text-align:left}
-th,td{padding:14px;border-bottom:1px solid #2a2a2c}
-th{color:#bbb;font-size:14px;text-transform:uppercase}
-td{font-size:15px}
-.row-metodo{display:inline-block;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:bold;background:#0f0f10;border:1px solid #333}
-button{padding:13px 14px;border-radius:12px;border:1px solid #333;background:linear-gradient(180deg,#ff8d34,#ff6d0f);border:none;color:#fff;font-weight:bold;cursor:pointer;font-size:15px;margin-bottom:10px}
-
-/* --- ESTILO DE IMPRESSÃO DO FECHAMENTO TÉRMICO (WINDOWS PRINT) --- */
-@media print {
-  body * { display: none !important; }
-  #cupom-relatorio, #cupom-relatorio * { display: block !important; }
-  #cupom-relatorio {
-    position: absolute; left: 0; top: 0; width: 100%;
-    color: #000 !important; background: #fff !important;
-    font-family: 'Courier New', Courier, monospace !important; font-size: 13px !important;
-    padding: 0; margin: 0;
-  }
-  .print-header { text-align: center; font-weight: bold; font-size: 15px; border-bottom: 1px dashed #000; padding-bottom: 6px; margin-bottom: 10px; }
-  .print-linha { display: flex; justify-content: space-between; margin-bottom: 4px; }
-}
+/* ... (mantenha todo o seu CSS original intacto) ... */
 </style></head><body>
 
 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:10px;">
   <h1>Relatórios de Vendas</h1>
-  <button onclick="imprimirFechamentoDia()">Imprimir Fechamento do Dia</button>
+  <button onclick="window.print()">Imprimir Fechamento</button>
 </div>
 
 <div class="grid-cards">
@@ -42,111 +15,50 @@ button{padding:13px 14px;border-radius:12px;border:1px solid #333;background:lin
   <div class="card"><h3>Ticket Médio</h3><div class="number" id="lblTicketMedio">R$ 0,00</div></div>
 </div>
 
-<h2>Detalhamento das Vendas do Dia</h2>
+<h2>Detalhamento das Vendas</h2>
 <div class="table-container">
   <table>
-    <thead>
-      <tr>
-        <th>ID / Hora</th>
-        <th>Origem</th>
-        <th>Método</th>
-        <th>Valor Recebido</th>
-      </tr>
-    </thead>
-    <tbody id="corpoTabelaVendas">
-      </tbody>
+    <thead><tr><th>Hora</th><th>Origem</th><th>Método</th><th>Valor</th></tr></thead>
+    <tbody id="corpoTabelaVendas"></tbody>
   </table>
 </div>
 
-<div id="cupom-relatorio" style="display: none;"></div>
-
 <script>
+// --- FUNÇÃO DE INTEGRAÇÃO ---
+function getDB() {
+  const data = localStorage.getItem('sistemaQuiosque');
+  return data ? JSON.parse(data) : { salao: {}, cozinha: [], historico: [] };
+}
+
+// --- LÓGICA DO RELATÓRIO ---
 function carregarRelatorios() {
+  const db = getDB();
   const tabela = document.getElementById('corpoTabelaVendas');
-  // Puxa o histórico real do Caixa salvo no LocalStorage
-  const historico = JSON.parse(localStorage.getItem('historicoCaixa')) || [];
+  const historico = db.historico;
 
   if (historico.length === 0) {
-    tabela.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#bbb; padding:30px;">Nenhuma venda finalizada no sistema até o momento.</td></tr>`;
+    tabela.innerHTML = `<tr><td colspan="4" style="text-align:center;">Nenhuma venda finalizada.</td></tr>`;
     return;
   }
 
-  let htmlLinhas = '';
   let faturamento = 0;
-  
-  historico.forEach(venda => {
-    faturamento += venda.valor;
-    
-    // Formata o ID para pegar apenas os números finais de forma limpa como hora/id
-    const horaFormatada = venda.data ? venda.data.split(' ')[1] : 'S/H';
+  tabela.innerHTML = historico.map(v => {
+    faturamento += v.valor;
+    return `<tr>
+      <td>${v.data ? v.data.split(' ')[1] : ''}</td>
+      <td style="color:#ff8d34;">${v.origem}</td>
+      <td>${v.metodo}</td>
+      <td style="color:#2ecc71;">R$ ${v.valor.toFixed(2)}</td>
+    </tr>`;
+  }).join('');
 
-    htmlLinhas += `
-      <tr>
-        <td style="color:#bbb;">#${venda.id.toString().slice(-6)} (${horaFormatada})</td>
-        <td style="font-weight:bold; color:#ff8d34;">${venda.origem}</td>
-        <td><span class="row-metodo">${venda.metodo}</span></td>
-        <td style="font-weight:bold; color:#2ecc71;">R$ ${venda.valor.toFixed(2).replace('.', ',')}</td>
-      </tr>
-    `;
-  });
-
-  tabela.innerHTML = htmlLinhas;
-
-  // Atualiza os Cards superiores
-  const totalVendas = historico.length;
-  const ticketMedio = faturamento / totalVendas;
-
-  document.getElementById('lblFaturamento').innerText = `R$ ${faturamento.toFixed(2).replace('.', ',')}`;
-  document.getElementById('lblTotalVendas').innerText = totalVendas;
-  document.getElementById('lblTicketMedio').innerText = `R$ ${ticketMedio.toFixed(2).replace('.', ',')}`;
+  // Atualiza Cards
+  document.getElementById('lblFaturamento').innerText = `R$ ${faturamento.toFixed(2)}`;
+  document.getElementById('lblTotalVendas').innerText = historico.length;
+  document.getElementById('lblTicketMedio').innerText = `R$ ${(faturamento / historico.length).toFixed(2)}`;
 }
 
-function imprimirFechamentoDia() {
-  const historico = JSON.parse(localStorage.getItem('historicoCaixa')) || [];
-  if (historico.length === 0) {
-    alert('Não existem vendas registradas hoje para emitir o fechamento!');
-    return;
-  }
-
-  let totalGeral = 0;
-  let metodos = { Dinheiro: 0, PIX: 0, Cartao: 0 };
-
-  historico.forEach(venda => {
-    totalGeral += venda.valor;
-    if (venda.metodo.toUpperCase().includes('DINHEIRO') || venda.metodo === 'Dinheiro') metodos.Dinheiro += venda.valor;
-    else if (venda.metodo.toUpperCase().includes('PIX')) metodos.PIX += venda.valor;
-    else metodos.Cartao += venda.valor;
-  });
-
-  const areaCupom = document.getElementById('cupom-relatorio');
-  
-  areaCupom.innerHTML = `
-    <div class="print-header">
-      QUIOSQUE SYSTEM - FECHAMENTO DE CAIXA<br>
-      ----------------------------------------
-    </div>
-    <div class="print-linha"><strong>DATA EMISSÃO:</strong> <span>${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}</span></div>
-    <div class="print-linha"><strong>TOTAL DE ATENDIMENTOS:</strong> <span>${historico.length}</span></div>
-    <div class="print-header" style="margin-top:10px; border-bottom:1px dashed #000;"></div>
-    <div style="margin: 10px 0; font-weight:bold;">RESUMO DE RECEBIMENTOS:</div>
-    <div class="print-linha"><span>(-) DINHEIRO:</span> <span>R$ ${metodos.Dinheiro.toFixed(2).replace('.', ',')}</span></div>
-    <div class="print-linha"><span>(-) PIX:</span> <span>R$ ${metodos.PIX.toFixed(2).replace('.', ',')}</span></div>
-    <div class="print-linha"><span>(-) CARTÕES:</span> <span>R$ ${metodos.Cartao.toFixed(2).replace('.', ',')}</span></div>
-    <div class="print-header" style="margin-top:10px; border-bottom:1px dashed #000;"></div>
-    <div class="print-linha" style="font-size:15px; font-weight:bold; margin-top:6px;">
-      <span>FATURAMENTO BRUTO:</span>
-      <span>R$ ${totalGeral.toFixed(2).replace('.', ',')}</span>
-    </div>
-    <div class="print-header" style="margin-top:20px;">
-      ----------------------------------------<br>
-      Fim do Relatório Gerencial
-    </div>
-  `;
-
-  window.print();
-}
-
-// Inicializa a tela carregando os relatórios do dia
+window.addEventListener('focus', carregarRelatorios);
 carregarRelatorios();
 </script>
 </body></html>
