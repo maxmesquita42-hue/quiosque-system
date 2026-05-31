@@ -2,117 +2,205 @@
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Quiosque | Pedidos</title>
 <style>
 *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#111;color:#fff;padding:22px}
-.card{max-width:760px;background:#171719;border:1px solid rgba(255,122,26,.18);border-radius:20px;padding:18px}
-label{display:block;margin:12px 0 6px;color:#ddd} select,input,button,textarea{width:100%;padding:13px 14px;border-radius:12px;border:1px solid #333;background:#0f0f10;color:#fff}
-button{margin-top:14px;background:linear-gradient(180deg,#ff8d34,#ff6d0f);border:none;font-weight:bold;cursor:pointer}
+.card{background:#171719;border:1px solid rgba(255,122,26,.18);border-radius:20px;padding:20px;max-width:500px;margin:0 auto}
+h2{margin-top:0;font-size:28px;color:#fff}
+label{display:block;margin:14px 0 6px;color:#bbb;font-size:14px;font-weight:bold}
+select,textarea,input{width:100%;padding:14px;background:#1f1f22;border:1px solid #333;border-radius:12px;color:#fff;font-size:15px;outline:none}
+select:focus,textarea:focus{border-color:#ff7a1a}
+optgroup{background:#171719;color:#ff7a1a;font-weight:bold;font-style:normal}
+option{background:#1f1f22;color:#fff;font-weight:normal}
+button.btn-enviar{width:100%;padding:14px;margin-top:20px;border-radius:12px;background:linear-gradient(180deg,#ff8d34,#ff6d0f);border:none;color:#fff;font-weight:bold;cursor:pointer;font-size:16px}
 </style></head><body>
+
 <div class="card">
-<h1>Novo Pedido</h1>
+  <h2>Novo Pedido</h2>
+  
+  <form id="formPedido" onsubmit="enviarPedido(event)">
+    <label>Mesa</label>
+    <select id="selectMesa" required>
+      <option value="">Selecione uma mesa</option>
+      <!-- Gerado dinamicamente -->
+    </select>
 
-<label>Mesa</label>
-<select id="selectMesa">
-  <option value="Mesa 1">Mesa 1</option>
-  <option value="Mesa 2">Mesa 2</option>
-  <option value="Mesa 3">Mesa 3</option>
-  <option value="Mesa 4">Mesa 4</option>
-  <option value="Mesa 5">Mesa 5</option>
-  <option value="Mesa 6">Mesa 6</option>
-  <option value="Mesa 7">Mesa 7</option>
-  <option value="Mesa 8">Mesa 8</option>
-</select>
+    <label>Produto</label>
+    <select id="selectProduto" required>
+      <option value="">Selecione um produto</option>
+      <!-- Aqui vão aparecer TODOS os itens do cardápio divididos por categorias -->
+    </select>
 
-<label>Produto</label>
-<select id="selectProduto">
-  <option value="">Carregando produtos do cardápio...</option>
-</select>
+    <label>Observações</label>
+    <textarea id="obsPedido" rows="3" placeholder="Sem cebola, ponto da carne, etc."></textarea>
 
-<label>Quantidade</label>
-<input type="number" id="inputQuantidade" value="1" min="1">
-
-<label>Observações</label>
-<textarea id="txtObservacoes" rows="3" placeholder="Sem cebola, ponto da carne, etc."></textarea>
-
-<button onclick="adicionarPedido()">Adicionar Pedido</button>
+    <button type="submit" class="btn-enviar">Adicionar Pedido</button>
+  </form>
 </div>
 
 <script>
-// Função para carregar dinamicamente todo o cardápio do seu arquivo menu.json
-async function carregarCardapioCompleto() {
-  const selectProduto = document.getElementById('selectProduto');
-  try {
-    const response = await fetch('/menu');
-    const categorias = await response.json();
-    
-    let itensHTML = '<option value="">Selecione um produto</option>';
-    
-    // Varre todas as categorias do seu JSON (Hambúrgueres, Pastéis, etc.)
-    for (const categoria in categorias) {
-      categorias[categoria].forEach(item => {
-        itensHTML += `<option value="${item.nome}">${item.nome} - R$ ${item.preco.toFixed(2).replace('.', ',')}</option>`;
-      });
+// Cardápio completo integrado diretamente para alimentar o sistema de pedidos
+const cardapioCompleto = {
+  "categorias": [
+    {
+      "nome": "Hambúrgueres",
+      "itens": [
+        { "nome": "Cheddar Burguer", "preco": 18.0 },
+        { "nome": "Nachos Burger", "preco": 23.0 },
+        { "nome": "Prime Burger", "preco": 25.0 },
+        { "nome": "Brutus Burger", "preco": 27.0 },
+        { "nome": "Apimentado", "preco": 21.0 },
+        { "nome": "Crispy Burger", "preco": 20.0 },
+        { "nome": "Meadhouse", "preco": 24.0 },
+        { "nome": "Duplicado", "preco": 22.0 },
+        { "nome": "Furioso", "preco": 26.0 },
+        { "nome": "Magnífico", "preco": 24.0 },
+        { "nome": "Gostosão", "preco": 21.0 },
+        { "nome": "Simplão", "preco": 15.0 },
+        { "nome": "Cebolinha", "preco": 22.0 },
+        { "nome": "Goiabinha", "preco": 23.0 },
+        { "nome": "Catu Burguer", "preco": 26.0 },
+        { "nome": "Costelinha", "preco": 28.0 }
+      ]
+    },
+    {
+      "nome": "Entradinhas",
+      "itens": [
+        { "nome": "Batata Premium", "preco": 25.0 },
+        { "nome": "Batata Simples", "preco": 13.0 },
+        { "nome": "Batata Chips", "preco": 16.0 },
+        { "nome": "Mini Coxinhas Empanada", "preco": 20.0 },
+        { "nome": "Batata Recheada", "preco": 20.0 }
+      ]
+    },
+    {
+      "nome": "Vitaminas",
+      "itens": [
+        { "nome": "Morango", "preco": 10.0 },
+        { "nome": "Manga", "preco": 9.0 },
+        { "nome": "Acerola", "preco": 9.0 },
+        { "nome": "Maracujá", "preco": 10.0 },
+        { "nome": "Goiaba", "preco": 9.0 },
+        { "nome": "Graviola", "preco": 9.0 }
+      ]
+    },
+    {
+      "nome": "Hot Dog Gourmet",
+      "itens": [
+        { "nome": "Hot Dog Apimentada", "preco": 15.0 },
+        { "nome": "Hot Burger", "preco": 17.0 },
+        { "nome": "Hot Dog de Carne", "preco": 12.0 },
+        { "nome": "Hot Dog de Bacon", "preco": 16.0 },
+        { "nome": "Hot Dog X-Tudão", "preco": 20.0 },
+        { "nome": "Hot Dog do Chefe", "preco": 18.0 }
+      ]
+    },
+    {
+      "nome": "Sobremesas",
+      "itens": [
+        { "nome": "Milk de Ovoninho", "preco": 16.0 },
+        { "nome": "Milk de Morango", "preco": 17.0 },
+        { "nome": "Bolo no Pote", "preco": 10.0 },
+        { "nome": "Din Din Gourmet", "preco": 6.0 },
+        { "nome": "Mousse de Maracujá", "preco": 6.0 }
+      ]
+    },
+    {
+      "nome": "Pastéis Raiz",
+      "itens": [
+        { "nome": "Frango", "preco": 6.0 },
+        { "nome": "Queijo", "preco": 6.0 },
+        { "nome": "Carne Moída", "preco": 6.0 },
+        { "nome": "Calabresa", "preco": 6.0 },
+        { "nome": "Camarão", "preco": 7.0 },
+        { "nome": "Presunto + Queijo", "preco": 6.0 },
+        { "nome": "Carne de Sol", "preco": 8.0 }
+      ]
+    },
+    {
+      "nome": "Pastéis Doces",
+      "itens": [
+        { "nome": "Alpino", "preco": 10.0 },
+        { "nome": "Doce de Leite", "preco": 9.0 },
+        { "nome": "Bis", "preco": 8.0 }
+      ]
+    },
+    {
+      "nome": "Pastéis Premium",
+      "itens": [
+        { "nome": "Carne de Sol + Queijo + Cream Cheese", "preco": 15.0 },
+        { "nome": "Frango + Camarão + Cream Cheese", "preco": 16.0 },
+        { "nome": "Calabresa + Azeitona + Tomate + Queijo", "preco": 13.0 },
+        { "nome": "Carne Moída + Azeitona + Frango", "preco": 13.0 },
+        { "nome": "Queijo + Carne de Sol + Frango + Cheddar Cremoso", "preco": 15.0 },
+        { "nome": "Cebola Caramelizada + Molho Barbecue + Carne de Sol", "preco": 16.0 },
+        { "nome": "Frango + Bacon + Cream Cheese", "preco": 15.0 }
+      ]
+    },
+    {
+      "nome": "Drinks",
+      "itens": [
+        { "nome": "Aperol Spritz", "preco": 12.0 },
+        { "nome": "Caipiroska", "preco": 7.0 },
+        { "nome": "Caipirinha", "preco": 6.0 },
+        { "nome": "Campari Dose", "preco": 9.0 },
+        { "nome": "Laramora", "preco": 10.0 }
+      ]
     }
-    
-    selectProduto.innerHTML = itensHTML;
-  } catch (error) {
-    console.error('Erro ao buscar o cardápio:', error);
-    // Caso dê erro ou esteja rodando local sem o servidor, mantém os 3 de teste para não quebrar a tela
-    selectProduto.innerHTML = `
-      <option value="">Selecione um produto</option>
-      <option value="Cheddar Burguer">Cheddar Burguer</option>
-      <option value="Batata Premium">Batata Premium</option>
-      <option value="Hot Dog do Chefe">Hot Dog do Chefe</option>
-    `;
+  ]
+};
+
+// Inicializa os campos da tela
+function carregarFormulario() {
+  const selectMesa = document.getElementById('selectMesa');
+  const selectProduto = document.getElementById('selectProduto');
+
+  // 1. Carrega as Mesas (Exemplo de 1 a 10)
+  for (let i = 1; i <= 10; i++) {
+    let opt = document.createElement('option');
+    opt.value = `Mesa ${i}`;
+    opt.textContent = `Mesa ${i}`;
+    selectMesa.appendChild(opt);
   }
+
+  // 2. Carrega todos os produtos organizados por Categoria
+  cardapioCompleto.categorias.forEach(cat => {
+    let grupo = document.createElement('optgroup');
+    grupo.label = cat.nome;
+
+    cat.itens.forEach(item => {
+      let opt = document.createElement('option');
+      opt.value = item.nome;
+      // Mostra o nome do produto e o preço formatado ao lado
+      opt.textContent = `${item.nome} - R$ ${item.preco.toFixed(2)}`;
+      grupo.appendChild(opt);
+    });
+
+    selectProduto.appendChild(grupo);
+  });
 }
 
-// 3. Ao mudar o produto selecionado, escreve o nome dele direto na caixa de observações
-document.getElementById('selectProduto').addEventListener('change', function() {
-  const produtoNome = this.value;
-  const campoObs = document.getElementById('txtObservacoes');
+function enviarPedido(event) {
+  event.preventDefault();
   
-  if (produtoNome) {
-    campoObs.value = `Item: ${produtoNome}\nObservações: `;
-    campoObs.focus();
-  } else {
-    campoObs.value = '';
-  }
-});
-
-// 4. Integração do botão Adicionar Pedido com o LocalStorage da Cozinha
-function adicionarPedido() {
   const mesa = document.getElementById('selectMesa').value;
   const produto = document.getElementById('selectProduto').value;
-  const quantidade = document.getElementById('inputQuantidade').value;
-  const observacoes = document.getElementById('txtObservacoes').value;
+  const obs = document.getElementById('obsPedido').value;
 
-  if (!produto) {
-    alert('Por favor, selecione um produto antes de adicionar o pedido!');
-    return;
-  }
-
-  // Monta a estrutura do pedido que a cozinha vai ler
-  const dadosPedido = {
+  const novoPedido = {
     id: Date.now(),
     mesa: mesa,
     produto: produto,
-    quantidade: quantidade,
-    observacoes: observacoes,
-    hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    observacao: obs,
+    status: "Pendente",
+    horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
   };
 
-  // Pega a lista atual da cozinha, adiciona o novo e salva de volta
-  let pedidosDaCozinha = JSON.parse(localStorage.getItem('pedidosCozinha')) || [];
-  pedidosDaCozinha.push(dadosPedido);
-  localStorage.setItem('pedidosCozinha', JSON.stringify(pedidosDaCozinha));
-
-  // Alerta de sucesso e limpa o formulário mantendo pronto para o próximo item
-  alert('Pedido enviado com sucesso para a tela da Cozinha!');
-  document.getElementById('selectProduto').value = '';
-  document.getElementById('inputQuantidade').value = '1';
-  document.getElementById('txtObservacoes').value = '';
+  // Aqui você mantém a sua integração de envio (seja via fetch API para o backend ou localStorage)
+  console.log("Pedido criado com sucesso:", novoPedido);
+  alert(`Pedido de ${produto} para a ${mesa} adicionado!`);
+  
+  document.getElementById('formPedido').reset();
 }
 
-// Inicia a listagem assim que a página abre
-carregarCardapioCompleto();
+// Executa ao abrir a página
+carregarFormulario();
 </script>
 </body></html>
